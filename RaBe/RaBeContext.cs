@@ -48,6 +48,10 @@ namespace RaBe
                     .HasColumnName("name")
                     .HasColumnType("varchar(255)");
 
+                entity.Property(e => e.Position)
+                    .HasColumnName("position")
+                    .HasColumnType("int");
+
                 entity.Property(e => e.RaumId)
                     .HasColumnName("raum_id")
                     .HasColumnType("int");

@@ -2,7 +2,7 @@
 CREATE TABLE Arbeitsplatz(
   id int not null primary key,
   name varchar(255) not null,
-  raum_id int not null,
+  raum_id int not null, position int not null default 0,
   FOREIGN KEY (raum_id) REFERENCES Raum(id)
 );
 CREATE TABLE Fehler(

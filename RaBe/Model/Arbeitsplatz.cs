@@ -13,6 +13,7 @@ namespace RaBe
         public long Id { get; set; }
         public string Name { get; set; }
         public long RaumId { get; set; }
+        public long Position { get; set; }
 
         public virtual Raum Raum { get; set; }
         public virtual ICollection<Fehler> Fehler { get; set; }
