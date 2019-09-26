@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace RaBe.Model
@@ -9,8 +10,11 @@ namespace RaBe.Model
         public int Betreuer { get; set; }
         public long LehrerId { get; set; }
         public long RaumId { get; set; }
-
+        
+        [JsonIgnore]
         public virtual Lehrer Lehrer { get; set; }
+
+        [JsonIgnore]
         public virtual Raum Raum { get; set; }
     }
 }

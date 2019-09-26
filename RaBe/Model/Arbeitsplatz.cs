@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace RaBe.Model
@@ -15,7 +16,10 @@ namespace RaBe.Model
         public long RaumId { get; set; }
         public long Position { get; set; }
 
+        [JsonIgnore]
         public virtual Raum Raum { get; set; }
+
+        [JsonIgnore]
         public virtual ICollection<Fehler> Fehler { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaBe.Model;
+using RaBe.RequestModel;
 
 namespace RaBe.Controllers
 {
@@ -41,40 +42,15 @@ namespace RaBe.Controllers
             return lehrerRaum;
         }
 
-        // PUT: api/LehrerRaum/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutLehrerRaum(long id, LehrerRaum lehrerRaum)
-        {
-            if (id != lehrerRaum.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(lehrerRaum).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LehrerRaumExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/LehrerRaum
         [HttpPost]
-        public async Task<ActionResult<LehrerRaum>> PostLehrerRaum(LehrerRaum lehrerRaum)
+        public async Task<ActionResult<bool>> PostLehrerRaum(TeacherRoomRequest request)
         {
+            var lehrerRaum = new LehrerRaum();
+            lehrerRaum.LehrerId = request.teacherId;
+            lehrerRaum.RaumId = request.roomId;
+            lehrerRaum.Betreuer = request.betreuer ? 1 : 0;
+
             _context.LehrerRaum.Add(lehrerRaum);
             try
             {
@@ -84,7 +60,7 @@ namespace RaBe.Controllers
             {
                 if (LehrerRaumExists(lehrerRaum.Id))
                 {
-                    return Conflict();
+                    return Conflict(false);
                 }
                 else
                 {
@@ -92,23 +68,23 @@ namespace RaBe.Controllers
                 }
             }
 
-            return CreatedAtAction("GetLehrerRaum", new { id = lehrerRaum.Id }, lehrerRaum);
+            return Ok(true);
         }
 
         // DELETE: api/LehrerRaum/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<LehrerRaum>> DeleteLehrerRaum(long id)
+        public async Task<ActionResult<bool>> DeleteLehrerRaum(long id)
         {
             var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
             if (lehrerRaum == null)
             {
-                return NotFound();
+                return NotFound(false);
             }
 
             _context.LehrerRaum.Remove(lehrerRaum);
             await _context.SaveChangesAsync();
 
-            return lehrerRaum;
+            return Ok(true);
         }
 
         private bool LehrerRaumExists(long id)

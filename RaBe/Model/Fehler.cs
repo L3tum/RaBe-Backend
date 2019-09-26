@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace RaBe.Model
@@ -12,7 +13,10 @@ namespace RaBe.Model
         public long ArbeitsplatzId { get; set; }
         public long KategorieId { get; set; }
 
+        [JsonIgnore]
         public virtual Arbeitsplatz Arbeitsplatz { get; set; }
+
+        [JsonIgnore]
         public virtual Kategorie Kategorie { get; set; }
     }
 }

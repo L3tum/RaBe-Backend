@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace RaBe.Model
@@ -11,6 +12,7 @@ namespace RaBe.Model
         public string Titel { get; set; }
         public long KategorieId { get; set; }
 
+        [JsonIgnore]
         public virtual Kategorie Kategorie { get; set; }
     }
 }

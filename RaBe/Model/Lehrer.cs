@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace RaBe.Model
@@ -16,6 +17,8 @@ namespace RaBe.Model
         public string Password { get; set; }
         public int PasswordGeaendert { get; set; }
         public string Token { get; set; }
+
+        [JsonIgnore]
 
         public virtual ICollection<LehrerRaum> LehrerRaum { get; set; }
     }
