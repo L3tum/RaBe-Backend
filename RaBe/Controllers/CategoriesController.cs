@@ -22,14 +22,14 @@ namespace RaBe.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Kategorie>>> GetKategorie()
+        public async Task<ActionResult<IEnumerable<Kategorie>>> GetCategory()
         {
             return await _context.Kategorie.ToListAsync();
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Kategorie>> GetKategorie(long id)
+        public async Task<ActionResult<Kategorie>> GetCategory(long id)
         {
             var kategorie = await _context.Kategorie.FindAsync(id);
 
@@ -43,7 +43,7 @@ namespace RaBe.Controllers
 
         // PUT: api/Categories/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutKategorie(long id, Kategorie kategorie)
+        public async Task<IActionResult> PutCategory(long id, Kategorie kategorie)
         {
             if (id != kategorie.Id)
             {
@@ -73,7 +73,7 @@ namespace RaBe.Controllers
 
         // POST: api/Categories
         [HttpPost]
-        public async Task<ActionResult<Kategorie>> PostKategorie(Kategorie kategorie)
+        public async Task<ActionResult<Kategorie>> PostCategory(Kategorie kategorie)
         {
             _context.Kategorie.Add(kategorie);
             try
@@ -97,7 +97,7 @@ namespace RaBe.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Kategorie>> DeleteKategorie(long id)
+        public async Task<ActionResult<Kategorie>> DeleteCategory(long id)
         {
             var kategorie = await _context.Kategorie.FindAsync(id);
             if (kategorie == null)
