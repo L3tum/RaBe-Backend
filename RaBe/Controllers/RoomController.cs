@@ -10,11 +10,11 @@ namespace RaBe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RaumController : ControllerBase
+    public class RoomController : ControllerBase
     {
         private RaBeContext context;
 
-        public RaumController(RaBeContext context)
+        public RoomController(RaBeContext context)
         {
             this.context = context;
         }
