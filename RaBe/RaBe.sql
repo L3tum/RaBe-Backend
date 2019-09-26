@@ -29,7 +29,7 @@ CREATE TABLE Lehrer(
 );
 CREATE TABLE LehrerRaum(
   id int not null primary key,
-  betreuer boolean default false,
+  betreuer tinyint default false,
   lehrer_id int not null,
   raum_id int not null,
   FOREIGN KEY (lehrer_id) REFERENCES Lehrer(id),

@@ -6,7 +6,7 @@ namespace RaBe
     public partial class LehrerRaum
     {
         public long Id { get; set; }
-        public string Betreuer { get; set; }
+        public int Betreuer { get; set; }
         public long LehrerId { get; set; }
         public long RaumId { get; set; }
 

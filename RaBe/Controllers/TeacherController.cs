@@ -95,5 +95,41 @@ namespace RaBe.Controllers
 
             return Ok(context.Lehrer.Remove(lehrer));
         }
+
+        [HttpPut("[method]/{teacherId}/{roomId}")]
+        public IActionResult MarkAsAuthority(int teacherId, int roomId)
+        {
+            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+
+            if (lehrer == null)
+            {
+                return NotFound();
+            }
+
+            var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
+
+            if(room == null)
+            {
+                return NotFound();
+            }
+
+            var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
+
+            if(teacherRoom == null)
+            {
+                teacherRoom = new LehrerRaum();
+                teacherRoom.LehrerId = teacherId;
+                teacherRoom.RaumId = roomId;
+                teacherRoom.Betreuer = 1;
+                context.LehrerRaum.Add(teacherRoom);
+            }
+            else
+            {
+                teacherRoom.Betreuer = 1;
+                context.LehrerRaum.Update(teacherRoom);
+            }
+
+            return Ok();
+        }
     }
 }
