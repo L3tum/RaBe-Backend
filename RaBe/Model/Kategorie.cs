@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RaBe
+namespace RaBe.Model
 {
     public partial class Kategorie
     {
