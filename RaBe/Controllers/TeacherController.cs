@@ -6,6 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using RaBe.Model;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace RaBe.Controllers
 {
@@ -28,47 +31,24 @@ namespace RaBe.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddTeacher()
+        public IActionResult AddTeacher(Lehrer lehrer)
         {
-            Lehrer lehrer = null;
-
-            using (var reader = new StreamReader(Request.Body))
-            {
-                var body = reader.ReadToEnd();
-
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    return BadRequest();
-                }
-
-                lehrer = JsonConvert.DeserializeObject<Lehrer>(body);
-            }
-
             if (lehrer == null)
             {
                 return this.BadRequest();
+            }
+
+            using (var sha = SHA256.Create())
+            {
+                lehrer.Password = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password)));
             }
 
             return Ok(context.Lehrer.Add(lehrer));
         }
 
         [HttpPut]
-        public IActionResult ModifyTeacher()
+        public IActionResult ModifyTeacher(Lehrer lehrer)
         {
-            Lehrer lehrer = null;
-
-            using (var reader = new StreamReader(Request.Body))
-            {
-                var body = reader.ReadToEnd();
-
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    return BadRequest();
-                }
-
-                lehrer = JsonConvert.DeserializeObject<Lehrer>(body);
-            }
-
             if (lehrer == null)
             {
                 return this.BadRequest();
@@ -81,10 +61,16 @@ namespace RaBe.Controllers
                 return NotFound();
             }
 
+            if(dbLehrer.Password != lehrer.Password)
+            {
+                return BadRequest();
+            }
+
             return Ok(context.Lehrer.Update(lehrer));
         }
 
-        [HttpDelete("[method]/{teacherId}")]
+        [Authorize]
+        [HttpDelete("[action]/{teacherId}")]
         public IActionResult DeleteTeacher(int teacherId)
         {
             var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
@@ -97,7 +83,7 @@ namespace RaBe.Controllers
             return Ok(context.Lehrer.Remove(lehrer));
         }
 
-        [HttpPut("[method]/{teacherId}/{roomId}")]
+        [HttpPut("[action]/{teacherId}/{roomId}")]
         public IActionResult MarkAsAuthority(int teacherId, int roomId)
         {
             var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
@@ -133,7 +119,7 @@ namespace RaBe.Controllers
             return Ok();
         }
 
-        [HttpDelete("[method]/{teacherId}/{roomId}")]
+        [HttpDelete("[action]/{teacherId}/{roomId}")]
         public IActionResult RemoveFromAuthority(int teacherId, int roomId)
         {
             var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);

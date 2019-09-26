@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +29,13 @@ namespace RaBe.Controllers
         }
 
         // GET
-        [HttpGet("[method]/{roomId}")]
+        [HttpGet("[action]/{roomId}")]
         public async Task<ActionResult<IEnumerable<Fehler>>> GetAllErrorsOfRoom(int roomId)
         {
             return await _context.Fehler.Where(f => f.Arbeitsplatz.RaumId == roomId).ToListAsync();
         }
 
-        [HttpGet("[method]/{workplaceId}")]
+        [HttpGet("[action]/{workplaceId}")]
         public async Task<ActionResult<IEnumerable<Fehler>>> GetAllErrorsOfWorkplace(int workplaceId)
         {
             return await _context.Fehler.Where(f => f.ArbeitsplatzId == workplaceId).ToListAsync();

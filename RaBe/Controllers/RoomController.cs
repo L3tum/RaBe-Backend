@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using RaBe.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RaBe.Controllers
 {
@@ -20,27 +21,27 @@ namespace RaBe.Controllers
             this.context = context;
         }
 
-        [HttpGet("[method]")]
+        [HttpGet("[action]")]
         public ActionResult<IEnumerable<Raum>> GetAllRooms()
         {
             return context.Raum;
         }
 
-        [HttpGet("[method]/{teacherId}")]
+        [HttpGet("[action]/{teacherId}")]
         [ProducesResponseType(typeof(IList<Raum>), 200)]
         public IActionResult GetAllRoomsOfTeacher(int teacherId)
         {
             return Ok(context.Raum.Where(r => r.LehrerRaum.Where(lr => lr.LehrerId == teacherId).Count() > 0));
         }
 
-        [HttpGet("[method]/{raumId}")]
+        [HttpGet("[action]/{raumId}")]
         [ProducesResponseType(typeof(IList<Arbeitsplatz>), 200)]
         public IActionResult GetAllWorkplacesOfRoom(int raumId)
         {
             return Ok(context.Arbeitsplatz.Where(a => a.RaumId == raumId));
         }
 
-        [HttpPut("[method]")]
+        [HttpPut("[action]")]
         public IActionResult ModifyRoom()
         {
             Raum raum = null;
@@ -97,7 +98,7 @@ namespace RaBe.Controllers
             return Ok(context.Raum.Add(raum));
         }
 
-        [HttpDelete("[method]/{raumId}")]
+        [HttpDelete("[action]/{raumId}")]
         public IActionResult DeleteRoom(int raumId)
         {
             var raum = context.Raum.FirstOrDefault(r => r.Id == raumId);
