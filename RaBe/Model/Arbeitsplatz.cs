@@ -18,7 +18,6 @@ namespace RaBe.Model
 
         [JsonIgnore]
         public virtual Raum Raum { get; set; }
-
         [JsonIgnore]
         public virtual ICollection<Fehler> Fehler { get; set; }
     }

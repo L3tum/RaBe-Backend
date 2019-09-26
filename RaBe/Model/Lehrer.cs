@@ -15,11 +15,10 @@ namespace RaBe.Model
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public int PasswordGeaendert { get; set; }
+        public long PasswordGeaendert { get; set; }
         public string Token { get; set; }
 
         [JsonIgnore]
-
         public virtual ICollection<LehrerRaum> LehrerRaum { get; set; }
     }
 }

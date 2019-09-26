@@ -38,7 +38,7 @@ CREATE TABLE LehrerRaum(
 CREATE TABLE Raum(
   id int not null primary KEY,
   name varchar(255) not null
-);
+, vorlage int not null default 0);
 CREATE TABLE StandardFehler(
   id int not null primary key,
   status int not null default 1,

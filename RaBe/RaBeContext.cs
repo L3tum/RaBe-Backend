@@ -35,8 +35,6 @@ namespace RaBe
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
-
             modelBuilder.Entity<Arbeitsplatz>(entity =>
             {
                 entity.Property(e => e.Id)
@@ -139,9 +137,8 @@ namespace RaBe
                     .HasColumnType("varchar(255)");
 
                 entity.Property(e => e.PasswordGeaendert)
-                    .IsRequired()
                     .HasColumnName("passwordGeaendert")
-                    .HasColumnType("bool")
+                    .HasColumnType("int")
                     .HasDefaultValueSql("false");
 
                 entity.Property(e => e.Token)
@@ -158,7 +155,7 @@ namespace RaBe
 
                 entity.Property(e => e.Betreuer)
                     .HasColumnName("betreuer")
-                    .HasColumnType("boolean")
+                    .HasColumnType("tinyint")
                     .HasDefaultValueSql("false");
 
                 entity.Property(e => e.LehrerId)
@@ -191,6 +188,10 @@ namespace RaBe
                     .IsRequired()
                     .HasColumnName("name")
                     .HasColumnType("varchar(255)");
+
+                entity.Property(e => e.Vorlage)
+                    .HasColumnName("vorlage")
+                    .HasColumnType("int");
             });
 
             modelBuilder.Entity<StandardFehler>(entity =>
@@ -223,6 +224,10 @@ namespace RaBe
                     .HasForeignKey(d => d.KategorieId)
                     .OnDelete(DeleteBehavior.ClientSetNull);
             });
+
+            OnModelCreatingPartial(modelBuilder);
         }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

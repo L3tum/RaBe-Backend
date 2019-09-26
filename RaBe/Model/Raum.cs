@@ -14,10 +14,10 @@ namespace RaBe.Model
 
         public long Id { get; set; }
         public string Name { get; set; }
+        public long Vorlage { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<Arbeitsplatz> Arbeitsplatz { get; set; }
-
         [JsonIgnore]
         public virtual ICollection<LehrerRaum> LehrerRaum { get; set; }
     }

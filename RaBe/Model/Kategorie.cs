@@ -17,7 +17,6 @@ namespace RaBe.Model
 
         [JsonIgnore]
         public virtual ICollection<Fehler> Fehler { get; set; }
-
         [JsonIgnore]
         public virtual ICollection<StandardFehler> StandardFehler { get; set; }
     }

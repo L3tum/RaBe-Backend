@@ -12,6 +12,7 @@
     <PackageReference Include="FluentEmail.Razor" Version="2.7.0" />
     <PackageReference Include="FluentEmail.Smtp" Version="2.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="3.0.0" />
@@ -34,9 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="RaBe.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="RaBe.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

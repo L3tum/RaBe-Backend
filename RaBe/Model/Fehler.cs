@@ -15,7 +15,6 @@ namespace RaBe.Model
 
         [JsonIgnore]
         public virtual Arbeitsplatz Arbeitsplatz { get; set; }
-
         [JsonIgnore]
         public virtual Kategorie Kategorie { get; set; }
     }

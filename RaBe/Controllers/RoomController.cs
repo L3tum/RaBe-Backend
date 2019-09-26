@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RaBe.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace RaBe.Controllers
 {
@@ -21,10 +22,10 @@ namespace RaBe.Controllers
             this.context = context;
         }
 
-        [HttpGet("[action]")]
-        public ActionResult<IEnumerable<Raum>> GetAllRooms()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Raum>>> GetAllRooms()
         {
-            return context.Raum;
+            return Ok(await context.Raum.ToListAsync());
         }
 
         [HttpGet("[action]/{teacherId}")]
@@ -41,23 +42,9 @@ namespace RaBe.Controllers
             return Ok(context.Arbeitsplatz.Where(a => a.RaumId == raumId));
         }
 
-        [HttpPut("[action]")]
-        public IActionResult ModifyRoom()
+        [HttpPut]
+        public IActionResult ModifyRoom(Raum raum)
         {
-            Raum raum = null;
-
-            using (var reader = new StreamReader(Request.Body))
-            {
-                var body = reader.ReadToEnd();
-
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    return BadRequest();
-                }
-
-                raum = JsonConvert.DeserializeObject<Raum>(body);
-            }
-
             if(raum == null)
             {
                 return this.BadRequest();
@@ -74,22 +61,8 @@ namespace RaBe.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddRoom()
+        public IActionResult AddRoom(Raum raum)
         {
-            Raum raum = null;
-
-            using (var reader = new StreamReader(Request.Body))
-            {
-                var body = reader.ReadToEnd();
-
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    return BadRequest();
-                }
-
-                raum = JsonConvert.DeserializeObject<Raum>(body);
-            }
-
             if (raum == null)
             {
                 return this.BadRequest();
@@ -98,7 +71,7 @@ namespace RaBe.Controllers
             return Ok(context.Raum.Add(raum));
         }
 
-        [HttpDelete("[action]/{raumId}")]
+        [HttpDelete("{raumId}")]
         public IActionResult DeleteRoom(int raumId)
         {
             var raum = context.Raum.FirstOrDefault(r => r.Id == raumId);
