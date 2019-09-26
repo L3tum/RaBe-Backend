@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentEmail.Core;
+using FluentEmail.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -117,12 +120,42 @@ namespace RaBe.Controllers
                 }
             }
 
+            var workplace = _context.Arbeitsplatz.Find(fehler.ArbeitsplatzId);
+            var category = _context.Kategorie.Find(fehler.KategorieId);
+            var lehrer = await _context.LehrerRaum.Where(lr => lr.RaumId == workplace.RaumId).ToListAsync();
+
+            var ok = await SendErrorReportEmail(lehrer.Select(l => new Address(l.Lehrer.Email, l.Lehrer.Name)).ToList(), workplace.Raum.Name, fehler.Titel, category.Name, workplace.Name, fehler.Status);
+
+            if (!ok)
+            {
+                return this.StatusCode(500, "Email sending not ok");
+            }
+
             return CreatedAtAction("GetFehler", new { id = fehler.Id }, fehler);
         }
 
         private bool FehlerExists(long id)
         {
             return _context.Fehler.Any(e => e.Id == id);
+        }
+
+        private async Task<bool> SendErrorReportEmail(List<Address> toAdresses, string roomName, string title, string category, string workplace, long status)
+        {
+            var email = Email.From(Environment.GetEnvironmentVariable("EMAIL_SENDER"))
+                .To(toAdresses)
+                .Subject($"Problem in Raum {roomName}")
+                .UsingTemplateFromFile($"{Directory.GetCurrentDirectory()}/Templates/ErrorReport.cshtml", 
+                new { 
+                    RaumName = roomName,
+                    Titel = title,
+                    Kategorie = category,
+                    Arbeitsplatz = workplace,
+                    Status = status
+                });
+
+            var response = await email.SendAsync();
+
+            return response.Successful;
         }
     }
 }

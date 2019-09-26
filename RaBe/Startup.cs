@@ -36,7 +36,7 @@ namespace RaBe
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddDbContext<RaBeContext>();
             services.AddSession();
 
@@ -91,6 +91,10 @@ namespace RaBe
             {
                 g.Title = "RaBe Backend";
             });
+
+            services.AddFluentEmail(Environment.GetEnvironmentVariable("EMAIL_SENDER"))
+                .AddRazorRenderer()
+                .AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER"), int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -106,8 +110,10 @@ namespace RaBe
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseMvc();
+            if (!env.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseSession();
             //Add JWToken to all incoming HTTP Request Header
