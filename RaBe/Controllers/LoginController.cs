@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RaBe.Model;
+using RaBe.RequestModel;
 
 namespace RaBe.Controllers
 {
@@ -24,10 +25,10 @@ namespace RaBe.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("[action]/{email}/{password}")]
-        public ActionResult<Lehrer> Login(string email, string password)
+        [HttpPost]
+        public ActionResult<int> Login(LoginRequest request)
         {
-            var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == email.ToLower());
+            var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
 
             if (lehrer == null)
             {
@@ -36,7 +37,7 @@ namespace RaBe.Controllers
 
             using (var sha = SHA256.Create())
             {
-                var hash = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                var hash = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(request.password)));
 
                 if (lehrer.Password == hash)
                 {
@@ -64,8 +65,8 @@ namespace RaBe.Controllers
             return Ok();
         }
 
-        [HttpPost("[action]/{oldPassword}/{newPassword}")]
-        public IActionResult ChangePassword(string oldPassword, string newPassword)
+        [HttpPost("[action]")]
+        public IActionResult ChangePassword(PasswordChangeRequest request)
         {
             var lehrer = _context.Lehrer.First(l => l.Token == HttpContext.Session.GetString("JWToken"));
 
@@ -76,11 +77,11 @@ namespace RaBe.Controllers
 
             using (var sha = SHA256.Create())
             {
-                var hash = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(oldPassword)));
+                var hash = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(request.OldPassword)));
 
                 if (lehrer.Password == hash)
                 {
-                    lehrer.Password = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(newPassword)));
+                    lehrer.Password = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(request.NewPassword)));
                     lehrer.PasswordGeaendert = 1;
 
                     _context.Lehrer.Update(lehrer);

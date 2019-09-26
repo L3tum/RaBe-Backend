@@ -13,6 +13,8 @@ RUN dotnet build "RaBe.csproj" -c Release -o /app
 
 FROM build AS publish
 RUN dotnet publish "RaBe.csproj" -c Release -o /app
+COPY ./RaBe.db /app/RaBe.db
+RUN chown 777 /app/RaBe.db
 
 FROM base AS final
 WORKDIR /app
