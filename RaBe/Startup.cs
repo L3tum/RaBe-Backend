@@ -96,6 +96,16 @@ namespace RaBe
             services.AddFluentEmail(Environment.GetEnvironmentVariable("EMAIL_SENDER") ?? "test@test.test")
                 .AddRazorRenderer()
                 .AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "test.test", int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25"));
+
+            services.AddCors(o =>
+            {
+                o.AddDefaultPolicy(cp =>
+                {
+                    cp.AllowAnyOrigin();
+                    cp.AllowAnyHeader();
+                    cp.AllowCredentials();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -134,6 +144,7 @@ namespace RaBe
 
             app.UseOpenApi();
             app.UseSwaggerUi3();
+            app.UseCors();
 
             // ===== Create tables ======
             dbContext.Database.EnsureCreated();
