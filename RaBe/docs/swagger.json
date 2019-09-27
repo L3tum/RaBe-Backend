@@ -1165,7 +1165,8 @@
       "required": [
         "id",
         "passwordGeaendert",
-        "blocked"
+        "blocked",
+        "administrator"
       ],
       "properties": {
         "id": {
@@ -1178,9 +1179,6 @@
         "email": {
           "type": "string"
         },
-        "password": {
-          "type": "string"
-        },
         "passwordGeaendert": {
           "type": "integer",
           "format": "int64"
@@ -1189,8 +1187,9 @@
           "type": "integer",
           "format": "int64"
         },
-        "token": {
-          "type": "string"
+        "administrator": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },

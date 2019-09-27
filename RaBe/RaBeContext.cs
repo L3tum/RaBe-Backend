@@ -141,6 +141,15 @@ namespace RaBe
                     .HasColumnType("int")
                     .HasDefaultValueSql("false");
 
+                entity.Property(e => e.Blocked)
+                    .HasColumnName("blocked")
+                    .HasColumnType("int")
+                    .HasDefaultValueSql("false");
+                entity.Property(e => e.Administrator)
+                    .HasColumnName("administrator")
+                    .HasColumnType("int")
+                    .HasDefaultValueSql("false");
+
                 entity.Property(e => e.Token)
                     .HasColumnName("token")
                     .HasColumnType("varchar(255)");
