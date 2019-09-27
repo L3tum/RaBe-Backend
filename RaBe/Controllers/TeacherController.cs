@@ -9,6 +9,7 @@ using RaBe.Model;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Cryptography;
 using System.Text;
+using RaBe.RequestModel;
 
 namespace RaBe.Controllers
 {
@@ -151,6 +152,23 @@ namespace RaBe.Controllers
                 teacherRoom.Betreuer = 0;
                 context.LehrerRaum.Update(teacherRoom);
             }
+
+            return Ok();
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult BlockLock(BlockLockRequest request)
+        {
+            var lehrer = context.Lehrer.FirstOrDefault(l => l.Email == request.email);
+
+            if(lehrer != null)
+            {
+                return NotFound();
+            }
+
+            lehrer.Blocked = 1;
+
+            context.Lehrer.Update(lehrer);
 
             return Ok();
         }

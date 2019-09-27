@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RaBe.Model;
 using RaBe.RequestModel;
+using RaBe.ResponseModel;
 
 namespace RaBe.Controllers
 {
@@ -26,13 +27,14 @@ namespace RaBe.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public ActionResult<int> Login(LoginRequest request)
+        public ActionResult<LoginResponse> Login(LoginRequest request)
         {
             var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
+            var response = new LoginResponse(false, false, false);
 
             if (lehrer == null)
             {
-                return Unauthorized();
+                return Unauthorized(response);
             }
 
             using (var sha = SHA256.Create())
@@ -41,15 +43,25 @@ namespace RaBe.Controllers
 
                 if (lehrer.Password == hash)
                 {
+                    if(lehrer.Blocked == 1)
+                    {
+                        response.isBlocked = true;
+
+                        return Unauthorized(response);
+                    }
+
                     lehrer.Token = TokenProvider.GetToken(lehrer).ToString();
 
                     _context.Lehrer.Update(lehrer);
                     HttpContext.Session.SetString("JWToken", lehrer.Token);
+                    response.passwordChanged = lehrer.PasswordGeaendert == 1;
 
-                    return Ok(lehrer.PasswordGeaendert);
+                    return Ok(response);
                 }
 
-                return Unauthorized();
+                response.passwordInvalid = true;
+
+                return Unauthorized(response);
             }
         }
 
