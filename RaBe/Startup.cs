@@ -110,6 +110,7 @@ namespace RaBe
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
         {
+            app.UseSession();
             app.UseMvc();
 
             if (env.IsDevelopment())
@@ -127,7 +128,6 @@ namespace RaBe
                 app.UseHttpsRedirection();
             }
 
-            app.UseSession();
             //Add JWToken to all incoming HTTP Request Header
             app.Use(async (context, next) =>
             {
