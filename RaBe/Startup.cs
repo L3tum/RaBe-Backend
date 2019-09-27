@@ -103,7 +103,6 @@ namespace RaBe
                 {
                     cp.AllowAnyOrigin();
                     cp.AllowAnyHeader();
-                    cp.AllowCredentials();
                 });
             });
         }
