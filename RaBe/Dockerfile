@@ -2,6 +2,9 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.0-stretch-slim AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
+ENV EMAIL_SENDER="test@test.test"
+ENV EMAIL_SERVER="test.com"
+ENV EMAIL_PORT=25
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-stretch AS build
 WORKDIR /src
