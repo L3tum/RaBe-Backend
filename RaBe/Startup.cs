@@ -36,7 +36,26 @@ namespace RaBe
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            if (env.IsDevelopment())
+            {
+                services.AddMvc(o =>
+                {
+                    o.Filters.Add(new AllowAnonymousFilter());
+                    o.EnableEndpointRouting = false;
+                }).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            }
+            else
+            {
+                services.AddMvc(o =>
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    o.Filters.Add(new AuthorizeFilter(policy));
+                    o.EnableEndpointRouting = false;
+                }).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            }
+
             services.AddDbContext<RaBeContext>();
             services.AddSession();
 
@@ -69,24 +88,6 @@ namespace RaBe
                 };
             });
 
-            if (env.IsDevelopment())
-            {
-                services.AddMvc(o =>
-                {
-                    o.Filters.Add(new AllowAnonymousFilter());
-                }).AddNewtonsoftJson();
-            }
-            else
-            {
-                services.AddMvc(o =>
-                {
-                    var policy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .Build();
-                    o.Filters.Add(new AuthorizeFilter(policy));
-                }).AddNewtonsoftJson();
-            }
-
             services.AddSwaggerDocument((g) =>
             {
                 g.Title = "RaBe Backend";
@@ -100,6 +101,8 @@ namespace RaBe
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
         {
+            app.UseMvc();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

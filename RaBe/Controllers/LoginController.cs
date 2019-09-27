@@ -27,14 +27,17 @@ namespace RaBe.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public ActionResult<LoginResponse> Login(LoginRequest request)
+        [ProducesResponseType(typeof(Lehrer), 200)]
+        [ProducesResponseType(typeof(Lehrer), 400)]
+        [ProducesResponseType(typeof(Lehrer), 401)]
+        [ProducesResponseType(typeof(Lehrer), 404)]
+        public ActionResult<Lehrer> Login(LoginRequest request)
         {
             var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
-            var response = new LoginResponse(false, false, false);
 
             if (lehrer == null)
             {
-                return Unauthorized(response);
+                return NotFound();
             }
 
             using (var sha = SHA256.Create())
@@ -45,23 +48,18 @@ namespace RaBe.Controllers
                 {
                     if(lehrer.Blocked == 1)
                     {
-                        response.isBlocked = true;
-
-                        return Unauthorized(response);
+                        return this.BadRequest(lehrer);
                     }
 
                     lehrer.Token = TokenProvider.GetToken(lehrer).ToString();
 
                     _context.Lehrer.Update(lehrer);
                     HttpContext.Session.SetString("JWToken", lehrer.Token);
-                    response.passwordChanged = lehrer.PasswordGeaendert == 1;
-
-                    return Ok(response);
+ 
+                    return Ok(lehrer);
                 }
 
-                response.passwordInvalid = true;
-
-                return Unauthorized(response);
+                return Unauthorized();
             }
         }
 
