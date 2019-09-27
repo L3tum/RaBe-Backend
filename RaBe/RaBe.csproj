@@ -51,7 +51,7 @@
 
   <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition="'$(GenerateDocs)'=='True' ">
     <Exec Command="echo '$(NSwagExe_Core30) aspnetcore2swagger /nobuild:true /assembly:$(TargetPath) /documentName:v1 /output:$(ProjectDir)docs/swagger.json'"/>
-    <Exec Command="$(NSwagExe_Core30) aspnetcore2swagger /nobuild:true /assembly:$(TargetPath) /documentName:v1 /output:$(ProjectDir)docs/swagger.json" />
+    <Exec Command="$(NSwagExe_Core30) aspnetcore2swagger /nobuild:true /assembly:$(TargetPath) /documentName:v1 /output:docs/swagger.json" />
   </Target>
 
 </Project>
