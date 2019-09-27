@@ -58,4 +58,4 @@ CREATE TABLE StandardFehler(
 -- VIEW
  
 -- DATA
-INSERT INTO Lehrer (name, email, password, passwordGeaendert, administrator) VALUES('admin', 'tom.pauly.arbeit@gmail.com', 'c37a0ae3a5d46dba0c8f3c60fb036c8a0fb873101fc4de12f3cd0290d44f0668', 1, 1);
+INSERT INTO Lehrer (name, email, password, passwordGeaendert, administrator) VALUES('admin', 'tom.pauly.arbeit@gmail.com', '1dq3QDIPs0s39iVyBXDElKxACMsShTO2MmoeVEIX0nk=', 1, 1);

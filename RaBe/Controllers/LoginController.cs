@@ -34,6 +34,7 @@ namespace RaBe.Controllers
         public ActionResult<Lehrer> Login(LoginRequest request)
         {
             var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
+            var salt = Environment.GetEnvironmentVariable("RABE_SALT") ?? "rabe-backend-salt";
 
             if (lehrer == null)
             {
@@ -42,7 +43,7 @@ namespace RaBe.Controllers
 
             using (var sha = SHA256.Create())
             {
-                var hash = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(request.password)));
+                var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + salt)));
 
                 if (lehrer.Password == hash)
                 {
