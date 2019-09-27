@@ -24,4 +24,4 @@ jobs:
         BASE_BRANCH: master # The branch the action should deploy from.
         BRANCH: gh-pages # The branch the action should deploy to.
         FOLDER: docs # The folder the action should deploy.
-        BUILD_SCRIPT: npm install -g redoc-cli && mkdir -p docs && cp /home/runner/work/RaBe-Backend/RaBe-Backend/RaBe/docs/swagger.json docs/swagger.json && redoc-cli bundle -o docs/index.html
+        BUILD_SCRIPT: npm install -g redoc-cli && redoc-cli bundle -o docs/index.html docs/swagger.json
