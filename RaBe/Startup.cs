@@ -92,9 +92,9 @@ namespace RaBe
                 g.Title = "RaBe Backend";
             });
 
-            services.AddFluentEmail(Environment.GetEnvironmentVariable("EMAIL_SENDER"))
+            services.AddFluentEmail(Environment.GetEnvironmentVariable("EMAIL_SENDER") ?? "test@test.test")
                 .AddRazorRenderer()
-                .AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER"), int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT")));
+                .AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "test.test", int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
