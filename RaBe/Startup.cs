@@ -74,7 +74,7 @@ namespace RaBe
                 services.AddMvc(o =>
                 {
                     o.Filters.Add(new AllowAnonymousFilter());
-                });
+                }).AddNewtonsoftJson();
             }
             else
             {
@@ -84,7 +84,7 @@ namespace RaBe
                         .RequireAuthenticatedUser()
                         .Build();
                     o.Filters.Add(new AuthorizeFilter(policy));
-                });
+                }).AddNewtonsoftJson();
             }
 
             services.AddSwaggerDocument((g) =>
