@@ -39,8 +39,8 @@ namespace RaBe
             {
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int")
-                    .ValueGeneratedNever();
+                    .HasColumnType("integer")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -49,11 +49,11 @@ namespace RaBe
 
                 entity.Property(e => e.Position)
                     .HasColumnName("position")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.Property(e => e.RaumId)
                     .HasColumnName("raum_id")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.HasOne(d => d.Raum)
                     .WithMany(p => p.Arbeitsplatz)
@@ -65,12 +65,12 @@ namespace RaBe
             {
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int")
-                    .ValueGeneratedNever();
+                    .HasColumnType("integer")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.ArbeitsplatzId)
                     .HasColumnName("arbeitsplatz_id")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.Property(e => e.Beschreibung)
                     .HasColumnName("beschreibung")
@@ -78,11 +78,11 @@ namespace RaBe
 
                 entity.Property(e => e.KategorieId)
                     .HasColumnName("kategorie_id")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.Property(e => e.Status)
                     .HasColumnName("status")
-                    .HasColumnType("int")
+                    .HasColumnType("integer")
                     .HasDefaultValueSql("1");
 
                 entity.Property(e => e.Titel)
@@ -105,8 +105,8 @@ namespace RaBe
             {
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int")
-                    .ValueGeneratedNever();
+                    .HasColumnType("integer")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -119,7 +119,7 @@ namespace RaBe
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
                     .HasColumnType("INT")
-                    .ValueGeneratedNever();
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Email)
                     .IsRequired()
@@ -138,16 +138,16 @@ namespace RaBe
 
                 entity.Property(e => e.PasswordGeaendert)
                     .HasColumnName("passwordGeaendert")
-                    .HasColumnType("int")
+                    .HasColumnType("integer")
                     .HasDefaultValueSql("false");
 
                 entity.Property(e => e.Blocked)
                     .HasColumnName("blocked")
-                    .HasColumnType("int")
+                    .HasColumnType("integer")
                     .HasDefaultValueSql("false");
                 entity.Property(e => e.Administrator)
                     .HasColumnName("administrator")
-                    .HasColumnType("int")
+                    .HasColumnType("integer")
                     .HasDefaultValueSql("false");
 
                 entity.Property(e => e.Token)
@@ -159,8 +159,8 @@ namespace RaBe
             {
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int")
-                    .ValueGeneratedNever();
+                    .HasColumnType("integer")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Betreuer)
                     .HasColumnName("betreuer")
@@ -169,11 +169,11 @@ namespace RaBe
 
                 entity.Property(e => e.LehrerId)
                     .HasColumnName("lehrer_id")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.Property(e => e.RaumId)
                     .HasColumnName("raum_id")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.HasOne(d => d.Lehrer)
                     .WithMany(p => p.LehrerRaum)
@@ -190,8 +190,8 @@ namespace RaBe
             {
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int")
-                    .ValueGeneratedNever();
+                    .HasColumnType("integer")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -200,15 +200,15 @@ namespace RaBe
 
                 entity.Property(e => e.Vorlage)
                     .HasColumnName("vorlage")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
             });
 
             modelBuilder.Entity<StandardFehler>(entity =>
             {
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int")
-                    .ValueGeneratedNever();
+                    .HasColumnType("integer")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Beschreibung)
                     .HasColumnName("beschreibung")
@@ -216,11 +216,11 @@ namespace RaBe
 
                 entity.Property(e => e.KategorieId)
                     .HasColumnName("kategorie_id")
-                    .HasColumnType("int");
+                    .HasColumnType("integer");
 
                 entity.Property(e => e.Status)
                     .HasColumnName("status")
-                    .HasColumnType("int")
+                    .HasColumnType("integer")
                     .HasDefaultValueSql("1");
 
                 entity.Property(e => e.Titel)
