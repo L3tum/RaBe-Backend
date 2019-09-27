@@ -1,176 +1,193 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System;
+﻿#region using
+
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using RaBe.Model;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RaBe.Model;
 using RaBe.RequestModel;
+
+#endregion
 
 namespace RaBe.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TeacherController : ControllerBase
-    {
-        private RaBeContext context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class TeacherController : ControllerBase
+	{
+		private readonly RaBeContext context;
 
-        public TeacherController(RaBeContext context)
-        {
-            this.context = context;
-        }
+		public TeacherController(RaBeContext context)
+		{
+			this.context = context;
+		}
 
-        [HttpGet]
-        [ProducesResponseType(typeof(IList<Lehrer>), 200)]
-        public IActionResult GetAllTeachers()
-        {
-            return Ok(context.Lehrer);
-        }
+		[HttpGet]
+		[ProducesResponseType(typeof(IList<Lehrer>), 200)]
+		public async Task<IActionResult> GetAllTeachers()
+		{
+			return Ok(await context.Lehrer.ToListAsync());
+		}
 
-        [HttpPost]
-        public IActionResult AddTeacher(Lehrer lehrer)
-        {
-            if (lehrer == null)
-            {
-                return this.BadRequest();
-            }
+		[HttpPost]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		public IActionResult AddTeacher(Lehrer lehrer)
+		{
+			if (lehrer == null)
+			{
+				return BadRequest();
+			}
 
-            using (var sha = SHA256.Create())
-            {
-                lehrer.Password = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password)));
-            }
+			using (var sha = SHA256.Create())
+			{
+				lehrer.Password = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password)));
+			}
 
-            return Ok(context.Lehrer.Add(lehrer));
-        }
+			context.Lehrer.Add(lehrer);
 
-        [HttpPut]
-        public IActionResult ModifyTeacher(Lehrer lehrer)
-        {
-            if (lehrer == null)
-            {
-                return this.BadRequest();
-            }
+			return Ok();
+		}
 
-            var dbLehrer = context.Lehrer.FirstOrDefault(r => r.Id == lehrer.Id);
+		[HttpPut]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		[ProducesResponseType(401)]
+		public IActionResult ModifyTeacher(Lehrer lehrer)
+		{
+			if (lehrer == null)
+			{
+				return BadRequest();
+			}
 
-            if (dbLehrer == null)
-            {
-                return NotFound();
-            }
+			var dbLehrer = context.Lehrer.FirstOrDefault(r => r.Id == lehrer.Id);
 
-            if(dbLehrer.Password != lehrer.Password)
-            {
-                return BadRequest();
-            }
+			if (dbLehrer == null)
+			{
+				return NotFound();
+			}
 
-            return Ok(context.Lehrer.Update(lehrer));
-        }
+			lehrer.Password = dbLehrer.Password;
 
-        [Authorize]
-        [HttpDelete("[action]/{teacherId}")]
-        public IActionResult DeleteTeacher(int teacherId)
-        {
-            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+			context.Lehrer.Update(lehrer);
 
-            if (lehrer == null)
-            {
-                return NotFound();
-            }
+			return Ok();
+		}
 
-            return Ok(context.Lehrer.Remove(lehrer));
-        }
+		[HttpDelete("[action]/{teacherId}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult DeleteTeacher(int teacherId)
+		{
+			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
-        [HttpPut("[action]/{teacherId}/{roomId}")]
-        public IActionResult MarkAsAuthority(int teacherId, int roomId)
-        {
-            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+			if (lehrer == null)
+			{
+				return NotFound();
+			}
 
-            if (lehrer == null)
-            {
-                return NotFound();
-            }
+			context.Lehrer.Remove(lehrer);
 
-            var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
+			return Ok();
+		}
 
-            if(room == null)
-            {
-                return NotFound();
-            }
+		[HttpPut("[action]/{teacherId}/{roomId}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult MarkAsAuthority(int teacherId, int roomId)
+		{
+			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
-            var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
+			if (lehrer == null)
+			{
+				return NotFound();
+			}
 
-            if(teacherRoom == null)
-            {
-                teacherRoom = new LehrerRaum();
-                teacherRoom.LehrerId = teacherId;
-                teacherRoom.RaumId = roomId;
-                teacherRoom.Betreuer = 1;
-                context.LehrerRaum.Add(teacherRoom);
-            }
-            else
-            {
-                teacherRoom.Betreuer = 1;
-                context.LehrerRaum.Update(teacherRoom);
-            }
+			var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
 
-            return Ok();
-        }
+			if (room == null)
+			{
+				return NotFound();
+			}
 
-        [HttpDelete("[action]/{teacherId}/{roomId}")]
-        public IActionResult RemoveFromAuthority(int teacherId, int roomId)
-        {
-            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+			var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
 
-            if (lehrer == null)
-            {
-                return NotFound();
-            }
+			if (teacherRoom == null)
+			{
+				teacherRoom = new LehrerRaum();
+				teacherRoom.LehrerId = teacherId;
+				teacherRoom.RaumId = roomId;
+				teacherRoom.Betreuer = 1;
+				context.LehrerRaum.Add(teacherRoom);
+			}
+			else
+			{
+				teacherRoom.Betreuer = 1;
+				context.LehrerRaum.Update(teacherRoom);
+			}
 
-            var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
+			return Ok();
+		}
 
-            if (room == null)
-            {
-                return NotFound();
-            }
+		[HttpDelete("[action]/{teacherId}/{roomId}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult RemoveFromAuthority(int teacherId, int roomId)
+		{
+			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
-            var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
+			if (lehrer == null)
+			{
+				return NotFound();
+			}
 
-            if (teacherRoom == null)
-            {
-                teacherRoom = new LehrerRaum();
-                teacherRoom.LehrerId = teacherId;
-                teacherRoom.RaumId = roomId;
-                teacherRoom.Betreuer = 0;
-                context.LehrerRaum.Add(teacherRoom);
-            }
-            else
-            {
-                teacherRoom.Betreuer = 0;
-                context.LehrerRaum.Update(teacherRoom);
-            }
+			var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
 
-            return Ok();
-        }
+			if (room == null)
+			{
+				return NotFound();
+			}
 
-        [HttpPost("[action]")]
-        public IActionResult BlockLock(BlockLockRequest request)
-        {
-            var lehrer = context.Lehrer.FirstOrDefault(l => l.Email == request.email);
+			var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
 
-            if(lehrer != null)
-            {
-                return NotFound();
-            }
+			if (teacherRoom == null)
+			{
+				teacherRoom = new LehrerRaum();
+				teacherRoom.LehrerId = teacherId;
+				teacherRoom.RaumId = roomId;
+				teacherRoom.Betreuer = 0;
+				context.LehrerRaum.Add(teacherRoom);
+			}
+			else
+			{
+				teacherRoom.Betreuer = 0;
+				context.LehrerRaum.Update(teacherRoom);
+			}
 
-            lehrer.Blocked = 1;
+			return Ok();
+		}
 
-            context.Lehrer.Update(lehrer);
+		[HttpPost("[action]")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult BlockLock(BlockLockRequest request)
+		{
+			var lehrer = context.Lehrer.FirstOrDefault(l => l.Email == request.email);
 
-            return Ok();
-        }
-    }
+			if (lehrer == null)
+			{
+				return NotFound();
+			}
+
+			lehrer.Blocked = 1;
+
+			context.Lehrer.Update(lehrer);
+
+			return Ok();
+		}
+	}
 }

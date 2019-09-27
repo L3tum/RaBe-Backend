@@ -1,12 +1,13 @@
-﻿using System;
+﻿#region using
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+#endregion
 
 namespace RaBe.ResponseModel
 {
-    public class AllErrorsResponse
-    {
-        public Dictionary<long, ErrorsResponse> rooms = new Dictionary<long, ErrorsResponse>();
-    }
+	public class AllErrorsResponse
+	{
+		public Dictionary<long, ErrorsResponse> rooms = new Dictionary<long, ErrorsResponse>();
+	}
 }

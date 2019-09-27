@@ -1,15 +1,16 @@
-﻿using RaBe.Model;
-using System;
+﻿#region using
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using RaBe.Model;
+
+#endregion
 
 namespace RaBe.ResponseModel
 {
-    public class ErrorsResponse
-    {
-        public long roomId;
-        public string roomName;
-        public List<Fehler> errors = new List<Fehler>();
-    }
+	public class ErrorsResponse
+	{
+		public List<Fehler> errors = new List<Fehler>();
+		public long roomId;
+		public string roomName;
+	}
 }

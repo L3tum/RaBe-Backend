@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace RaBe.RequestModel
+﻿namespace RaBe.RequestModel
 {
-    public class TeacherRoomRequest
-    {
-        public int teacherId;
-        public int roomId;
-        public bool betreuer;
-    }
+	public class TeacherRoomRequest
+	{
+		public bool betreuer;
+		public int roomId;
+		public int teacherId;
+	}
 }
