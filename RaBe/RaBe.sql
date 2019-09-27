@@ -25,6 +25,7 @@ CREATE TABLE Lehrer(
   email varchar(255) NOT NULL,
   password varchar(255) not null,
   passwordGeaendert int not null default false,
+  blocked int not null default false,
   token varchar(255) default null
 );
 CREATE TABLE LehrerRaum(
