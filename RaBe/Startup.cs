@@ -102,8 +102,9 @@ namespace RaBe
                 o.AddDefaultPolicy(cp =>
                 {
                     cp.AllowAnyOrigin();
-                    cp.AllowAnyHeader();
-                });
+                    cp.WithHeaders("authorization", "accept", "content-type", "origin");
+                    cp.AllowAnyMethod();
+            });
             });
         }
 
