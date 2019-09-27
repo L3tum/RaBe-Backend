@@ -22,4 +22,4 @@ jobs:
         BASE_BRANCH: master # The branch the action should deploy from.
         BRANCH: gh-pages # The branch the action should deploy to.
         FOLDER: docs # The folder the action should deploy.
-        BUILD_SCRIPT: npm install -g redoc-cli && dotnet build --configuration Debug && redoc-cli bundle -o docs/index.html docs/swagger.json
+        BUILD_SCRIPT: npm install -g redoc-cli && sudo add-apt-repository universe && sudo apt-get update && sudo apt-get install apt-transport-https && sudo apt-get install dotnet-sdk-3.0 && dotnet build --configuration Debug && redoc-cli bundle -o docs/index.html docs/swagger.json
