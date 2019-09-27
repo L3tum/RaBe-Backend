@@ -1,0 +1,1253 @@
+﻿{
+  "x-generator": "NSwag v13.1.0.0 (NJsonSchema v10.0.24.0 (Newtonsoft.Json v12.0.0.0))",
+  "swagger": "2.0",
+  "info": {
+    "title": "RaBe Backend",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/Categories": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "Categories_GetCategoryAll",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Kategorie"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "Categories_PostCategory",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "kategorie",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Kategorie"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Kategorie"
+            }
+          }
+        }
+      }
+    },
+    "/api/Categories/{id}": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "Categories_GetCategory",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Kategorie"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "Categories_PutCategory",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "name": "kategorie",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Kategorie"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "operationId": "Categories_DeleteCategory",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Kategorie"
+            }
+          }
+        }
+      }
+    },
+    "/api/Errors": {
+      "get": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_GetFehlerAll",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Fehler"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_ReportError",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "fehler",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Fehler"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Fehler"
+            }
+          }
+        }
+      }
+    },
+    "/api/Errors/GetAllErrorsOfRoom/{roomId}": {
+      "get": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_GetAllErrorsOfRoom",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Fehler"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Errors/GetAllErrorsOfWorkplace/{workplaceId}": {
+      "get": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_GetAllErrorsOfWorkplace",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "workplaceId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Fehler"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Errors/{id}": {
+      "get": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_GetFehler",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Fehler"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_ResolveError",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Fehler"
+            }
+          }
+        }
+      }
+    },
+    "/api/Errors/{id}/{status}": {
+      "put": {
+        "tags": [
+          "Errors"
+        ],
+        "operationId": "Errors_ResolveError2",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "status",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Fehler"
+            }
+          }
+        }
+      }
+    },
+    "/api/Login": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "operationId": "Login_Login",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/LoginResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/Login/Logout": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "operationId": "Login_Logout",
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Login/ChangePassword": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "operationId": "Login_ChangePassword",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PasswordChangeRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Room": {
+      "get": {
+        "tags": [
+          "Room"
+        ],
+        "operationId": "Room_GetAllRooms",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Raum"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Room"
+        ],
+        "operationId": "Room_ModifyRoom",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "raum",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Raum"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Room"
+        ],
+        "operationId": "Room_AddRoom",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "raum",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Raum"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Room/GetAllRoomsOfTeacher/{teacherId}": {
+      "get": {
+        "tags": [
+          "Room"
+        ],
+        "operationId": "Room_GetAllRoomsOfTeacher",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "teacherId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Raum"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Room/GetAllWorkplacesOfRoom/{raumId}": {
+      "get": {
+        "tags": [
+          "Room"
+        ],
+        "operationId": "Room_GetAllWorkplacesOfRoom",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "raumId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Arbeitsplatz"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Room/{raumId}": {
+      "delete": {
+        "tags": [
+          "Room"
+        ],
+        "operationId": "Room_DeleteRoom",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "raumId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Teacher": {
+      "get": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_GetAllTeachers",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Lehrer"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_AddTeacher",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "lehrer",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Lehrer"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_ModifyTeacher",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "lehrer",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Lehrer"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Teacher/DeleteTeacher/{teacherId}": {
+      "delete": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_DeleteTeacher",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "teacherId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Teacher/MarkAsAuthority/{teacherId}/{roomId}": {
+      "put": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_MarkAsAuthority",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "teacherId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Teacher/RemoveFromAuthority/{teacherId}/{roomId}": {
+      "delete": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_RemoveFromAuthority",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "teacherId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/Teacher/BlockLock": {
+      "post": {
+        "tags": [
+          "Teacher"
+        ],
+        "operationId": "Teacher_BlockLock",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BlockLockRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
+    "/api/TeacherRoom": {
+      "get": {
+        "tags": [
+          "TeacherRoom"
+        ],
+        "operationId": "TeacherRoom_GetLehrerRaumAll",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LehrerRaum"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "TeacherRoom"
+        ],
+        "operationId": "TeacherRoom_PostLehrerRaum",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TeacherRoomRequest"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "/api/TeacherRoom/{id}": {
+      "get": {
+        "tags": [
+          "TeacherRoom"
+        ],
+        "operationId": "TeacherRoom_GetLehrerRaum",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/LehrerRaum"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "TeacherRoom"
+        ],
+        "operationId": "TeacherRoom_DeleteLehrerRaum",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "format": "int64",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Kategorie": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Fehler": {
+      "type": "object",
+      "required": [
+        "id",
+        "status",
+        "arbeitsplatzId",
+        "kategorieId"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "beschreibung": {
+          "type": "string"
+        },
+        "titel": {
+          "type": "string"
+        },
+        "arbeitsplatzId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "kategorieId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "LoginResponse": {
+      "type": "object",
+      "required": [
+        "passwordInvalid",
+        "passwordChanged",
+        "isBlocked"
+      ],
+      "properties": {
+        "passwordInvalid": {
+          "type": "boolean"
+        },
+        "passwordChanged": {
+          "type": "boolean"
+        },
+        "isBlocked": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "PasswordChangeRequest": {
+      "type": "object",
+      "properties": {
+        "oldPassword": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "Raum": {
+      "type": "object",
+      "required": [
+        "id",
+        "vorlage"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "vorlage": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Arbeitsplatz": {
+      "type": "object",
+      "required": [
+        "id",
+        "raumId",
+        "position"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "raumId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "position": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Lehrer": {
+      "type": "object",
+      "required": [
+        "id",
+        "passwordGeaendert",
+        "blocked"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "passwordGeaendert": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "blocked": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "BlockLockRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "LehrerRaum": {
+      "type": "object",
+      "required": [
+        "id",
+        "lehrerId",
+        "raumId"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "betreuer": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lehrerId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "raumId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "TeacherRoomRequest": {
+      "type": "object",
+      "required": [
+        "teacherId",
+        "roomId",
+        "betreuer"
+      ],
+      "properties": {
+        "teacherId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "roomId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "betreuer": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
