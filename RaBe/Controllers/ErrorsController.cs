@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaBe.Model;
+using RaBe.ResponseModel;
 
 namespace RaBe.Controllers
 {
@@ -26,9 +27,23 @@ namespace RaBe.Controllers
 
         // GET: api/Errors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Fehler>>> GetFehler()
+        public async Task<ActionResult<AllErrorsResponse>> GetFehler()
         {
-            return await _context.Fehler.ToListAsync();
+            var response = new AllErrorsResponse();
+
+            var errors = await _context.Fehler.ToListAsync();
+
+            foreach(var error in errors)
+            {
+                if (!response.rooms.ContainsKey(error.Arbeitsplatz.RaumId))
+                {
+                    response.rooms.Add(error.Arbeitsplatz.RaumId, new ErrorsResponse() { roomId = error.Arbeitsplatz.RaumId, roomName = error.Arbeitsplatz.Raum.Name });
+                }
+
+                response.rooms[error.Arbeitsplatz.RaumId].errors.Add(error);
+            }
+
+            return response;
         }
 
         // GET
