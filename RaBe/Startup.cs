@@ -2,22 +2,32 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
+using RaBe.Healthchecks;
 
 #endregion
 
@@ -29,11 +39,15 @@ namespace RaBe
 			("RaBe-2374-OFFKDI940NG7:56753253-gso-5769-0921-kfirox29zoxv");
 
 		private readonly IHostingEnvironment env;
+		private static DateTime lastTs;
+		private static TimeSpan lastProcessorTime;
 
 		public Startup(IConfiguration configuration, IHostingEnvironment env)
 		{
 			Configuration = configuration;
 			this.env = env;
+			lastTs = DateTime.UtcNow;
+			lastProcessorTime = TimeSpan.Zero;
 		}
 
 		public IConfiguration Configuration { get; }
@@ -55,13 +69,14 @@ namespace RaBe
 				policy = new AuthorizeFilter(built);
 			}
 
-			services.AddMvc(o =>
-			{
-				o.Filters.Add(policy);
-				o.Filters.Add(typeof(DBSaveChangesFilter));
-				o.EnableEndpointRouting = false;
-				o.ReturnHttpNotAcceptable = true;
-			}).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+			services.AddMvcCore(o =>
+				{
+					o.Filters.Add(policy);
+					o.Filters.Add(typeof(DBSaveChangesFilter));
+					o.EnableEndpointRouting = false;
+					o.ReturnHttpNotAcceptable = true;
+				}).AddNewtonsoftJson().AddApiExplorer().AddAuthorization().AddCors().AddCacheTagHelper()
+				.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
 			services.AddDbContext<RaBeContext>();
 			services.AddSession();
@@ -118,7 +133,7 @@ namespace RaBe
 
 			services.AddFluentEmail(Environment.GetEnvironmentVariable("EMAIL_SENDER") ?? "test@test.test")
 				.AddRazorRenderer()
-				.AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "test.test",
+				.AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com",
 					int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25"));
 
 			services.AddCors(o =>
@@ -130,6 +145,20 @@ namespace RaBe
 					cp.AllowAnyMethod();
 				});
 			});
+
+			services.AddHealthChecks()
+				.AddDiskStorageHealthCheck(setup => { setup.AddDrive(new DriveInfo(env.ContentRootPath).Name); })
+				.AddCheck<MemoryHealthCheck>("memory")
+				.AddSmtpHealthCheck(setup =>
+				{
+					setup.Host = Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com";
+					setup.Port = int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25");
+				})
+				.AddSqlite("DataSource=./RaBe.db")
+				.AddDbContextCheck<RaBeContext>();
+			services.AddHealthChecksUI(setupSettings: settings =>
+				settings.SetHealthCheckDatabaseConnectionString("DataSource=./RaBe.db")
+					.AddHealthCheckEndpoint("RaBe Backend", GetHealthUri()));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -137,6 +166,18 @@ namespace RaBe
 		{
 			app.UseSession();
 			app.UseMvc();
+			app.UseHealthChecks("/health", new HealthCheckOptions
+				{
+					Predicate = _ => true
+				})
+				.UseHealthChecks("/healthz", new HealthCheckOptions
+				{
+					Predicate = _ => true,
+					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+				});
+			app.UseHealthChecksUI();
+			app.UseRouting().UseEndpoints(config => { config.MapHealthChecksUI(); });
+			app.UseRewriter(new RewriteOptions().AddRedirect("^$", "/swagger"));
 
 			if (env.IsDevelopment())
 			{
@@ -146,6 +187,7 @@ namespace RaBe
 			{
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
+				app.UseResponseCompression();
 			}
 
 			if (!env.IsDevelopment())
@@ -173,6 +215,13 @@ namespace RaBe
 
 			// ===== Create tables ======
 			dbContext.Database.EnsureCreated();
+		}
+
+		private string GetHealthUri()
+		{
+			return (Environment.GetEnvironmentVariable("APPLICATION_URL") ?? (env.IsDevelopment()
+				        ? "http://localhost:53125"
+				        : "https://rabe-backend.herokuapp.com")) + "/healthz";
 		}
 	}
 }
