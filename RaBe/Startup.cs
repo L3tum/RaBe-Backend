@@ -176,6 +176,7 @@ namespace RaBe
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
 #pragma warning restore CS0618 // Typ oder Element ist veraltet
 		{
+            app.UseCookiePolicy();
             app.UseSession();
             app.UseCors();
 			app.UseRewriter(new RewriteOptions().AddRedirect("^$", "/swagger"));
@@ -225,13 +226,6 @@ namespace RaBe
 
             // ===== Create tables ======
             dbContext.Database.EnsureCreated();
-		}
-
-		private string GetHealthUri()
-		{
-			return (Environment.GetEnvironmentVariable("APPLICATION_URL") ?? (env.IsDevelopment()
-				        ? "http://localhost:53125"
-				        : "https://rabe-backend.herokuapp.com")) + "/healthz";
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace RaBe.Controllers
 		[ProducesResponseType(typeof(Lehrer), 400)]
 		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
-		public ActionResult<Lehrer> Login(LoginRequest request)
+		public IActionResult Login(LoginRequest request)
 		{
             if(request == null)
             {
@@ -70,8 +70,7 @@ namespace RaBe.Controllers
 					lehrer.Token = TokenProvider.GetToken(lehrer);
 
 					_context.Lehrer.Update(lehrer);
-					HttpContext.Session.SetString("JWToken", lehrer.Token);
-                    HttpContext.Session.SetInt32("fails", 0);
+					HttpContext.Session.SetString("JWToken", "12");
 
                     return Ok(lehrer);
 				}
