@@ -11,29 +11,34 @@ using RaBe.Model;
 
 namespace RaBe
 {
-	public static class TokenProvider
+	internal static class TokenProvider
 	{
-		public static JwtSecurityToken GetToken(Lehrer teacher)
+		internal static string GetToken(Lehrer teacher)
 		{
-			return new JwtSecurityToken(
-				"http://localhost:80",
-				"GSO",
-				GetUserClaims(teacher),
-				new DateTime(),
-				new DateTime().AddDays(1),
-				new SigningCredentials(new SymmetricSecurityKey(Startup.SecretKey),
-					SecurityAlgorithms.HmacSha256Signature)
-			);
+            var tokenHandler = new JwtSecurityTokenHandler();
+			var tokenDescriptor = new SecurityTokenDescriptor() {
+                Issuer = "http://localhost:80",
+                Audience = "GSO",
+                Subject = GetUserClaims(teacher),
+                IssuedAt = DateTime.Now,
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Startup.SecretKey),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
 		}
 
-		private static IEnumerable<Claim> GetUserClaims(Lehrer teacher)
-		{
-			return new List<Claim>
+		private static ClaimsIdentity GetUserClaims(Lehrer teacher)
+        {
+            return new ClaimsIdentity(new List<Claim>
 			{
 				new Claim("id", teacher.Id.ToString()),
 				new Claim("email", teacher.Email),
 				new Claim("name", teacher.Name)
-			};
+			});
 		}
 	}
 }

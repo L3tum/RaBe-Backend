@@ -14,13 +14,11 @@ namespace RaBe.Model
         public long Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-
         [JsonIgnore]
         public string Password { get; set; }
-        public long PasswordGeaendert { get; set; }
-        public long Blocked { get; set; }
-        public long Administrator { get; set; }
-
+        public bool PasswordGeaendert { get; set; }
+        public bool Blocked { get; set; }
+        public bool Administrator { get; set; }
         [JsonIgnore]
         public string Token { get; set; }
 
