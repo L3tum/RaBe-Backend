@@ -81,6 +81,17 @@ namespace RaBe
                 });
             });
 
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            services.AddSession(opts =>
+            {
+                opts.Cookie.IsEssential = true; // make the session cookie Essential
+            });
+
             services.AddMvc(o =>
 				{
 					o.Filters.Add(policy);
@@ -91,14 +102,6 @@ namespace RaBe
 				.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDbContext<RaBeContext>();
-
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-            services.AddSession();
 
             services.Configure<GzipCompressionProviderOptions>
                 (options => options.Level = CompressionLevel.Fastest);

@@ -20,6 +20,7 @@ namespace RaBe.Controllers
 	public class LoginController : ControllerBase
 	{
 		private readonly RaBeContext _context;
+        internal const string SALT = "rabe-backend-salt";
 
 		public LoginController(RaBeContext context)
 		{
@@ -35,7 +36,6 @@ namespace RaBe.Controllers
 		public ActionResult<Lehrer> Login(LoginRequest request)
 		{
 			var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
-			var salt = Environment.GetEnvironmentVariable("RABE_SALT") ?? "rabe-backend-salt";
 
 			if (lehrer == null)
 			{
@@ -44,7 +44,7 @@ namespace RaBe.Controllers
 
 			using (var sha = SHA256.Create())
 			{
-				var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + salt)));
+				var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + SALT)));
 
 				if (lehrer.Password == hash)
 				{
@@ -77,9 +77,10 @@ namespace RaBe.Controllers
 				return NotFound();
 			}
 
-			HttpContext.Session.Clear();
-			lehrer.Token = null;
-			_context.Lehrer.Update(lehrer);
+            lehrer.Token = null;
+            _context.Lehrer.Update(lehrer);
+
+            HttpContext.Session.Clear();
 
 			return Ok();
 		}
@@ -99,12 +100,12 @@ namespace RaBe.Controllers
 
 			using (var sha = SHA256.Create())
 			{
-				var hash = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(request.oldPassword)));
+				var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.oldPassword + SALT)));
 
 				if (lehrer.Password == hash)
 				{
 					lehrer.Password =
-						Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(request.newPassword)));
+						Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.newPassword + SALT)));
 					lehrer.PasswordGeaendert = 1;
 
 					_context.Lehrer.Update(lehrer);
@@ -115,5 +116,20 @@ namespace RaBe.Controllers
 				return Unauthorized();
 			}
 		}
+
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        public IActionResult IsLoggedIn()
+        {
+            var token = HttpContext.Session.GetString("JWToken");
+
+            if(token == null)
+            {
+                return Unauthorized();
+            }
+
+            return Ok();
+        }
 	}
 }

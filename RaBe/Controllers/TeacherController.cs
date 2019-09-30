@@ -1,5 +1,6 @@
 ﻿#region using
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -45,7 +46,7 @@ namespace RaBe.Controllers
 
 			using (var sha = SHA256.Create())
 			{
-				lehrer.Password = Encoding.UTF8.GetString(sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password)));
+				lehrer.Password = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password + LoginController.SALT)));
 			}
 
 			context.Lehrer.Add(lehrer);
