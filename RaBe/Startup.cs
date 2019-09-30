@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
@@ -80,10 +82,15 @@ namespace RaBe
 
 			services.AddDbContext<RaBeContext>();
 			services.AddSession();
-            services.AddHttpContextAccessor();
+            services.Configure<GzipCompressionProviderOptions>
+                (options => options.Level = CompressionLevel.Fastest);
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+            });
 
-			//Configure JWT Token Authentication
-			services.AddAuthentication(auth =>
+            //Configure JWT Token Authentication
+            services.AddAuthentication(auth =>
 				{
 					auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 					auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
