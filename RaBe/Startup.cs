@@ -141,7 +141,7 @@ namespace RaBe
 						ValidateLifetime = true,
 						ClockSkew = TimeSpan.FromMinutes(5)
 					};
-				});
+                });
 
 			services.AddOpenApiDocument(g =>
 			{
@@ -229,7 +229,10 @@ namespace RaBe
 
 				if (!string.IsNullOrEmpty(JWToken))
 				{
-					context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
+                    if(app.ApplicationServices.GetService<RaBeContext>().Lehrer.Any(l => l.Token == JWToken))
+                    {
+                        context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
+                    }
 				}
 
 				await next();
