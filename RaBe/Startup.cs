@@ -2,12 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -16,9 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
@@ -27,7 +23,6 @@ using NSwag;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
-using RaBe.Healthchecks;
 
 #endregion
 
@@ -38,111 +33,84 @@ namespace RaBe
 		internal static readonly byte[] SecretKey = Encoding.ASCII.GetBytes
 			("RaBe-2374-OFFKDI940NG7:56753253-gso-5769-0921-kfirox29zoxv");
 
-#pragma warning disable CS0618 // Typ oder Element ist veraltet
-		private readonly IHostingEnvironment env;
-#pragma warning restore CS0618 // Typ oder Element ist veraltet
-
-#pragma warning disable CS0618 // Typ oder Element ist veraltet
-		public Startup(IConfiguration configuration, IHostingEnvironment env)
-#pragma warning restore CS0618 // Typ oder Element ist veraltet
-		{
-			Configuration = configuration;
-			this.env = env;
-		}
-
 		public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-            IFilterMetadata policy = null;
+			services.AddMvc(o =>
+				{
+					var built = new AuthorizationPolicyBuilder()
+						.RequireAuthenticatedUser()
+						.Build();
+					IFilterMetadata policy = new AuthorizeFilter(built);
+					o.Filters.Add(policy);
 
-			if (env.IsDevelopment())
+					o.Filters.Add(typeof(DBSaveChangesFilter));
+					o.EnableEndpointRouting = false;
+					o.ReturnHttpNotAcceptable = true;
+				}).AddNewtonsoftJson()
+				.AddSessionStateTempDataProvider()
+				.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+			services.AddCors(o =>
 			{
-				policy = new AllowAnonymousFilter();
-			}
-			else
+				o.AddDefaultPolicy(cp =>
+				{
+					cp.AllowAnyOrigin();
+					cp.AllowAnyHeader();
+					cp.AllowAnyMethod();
+				});
+			});
+
+			services.Configure<CookiePolicyOptions>(options =>
 			{
-				var built = new AuthorizationPolicyBuilder()
-					.RequireAuthenticatedUser()
-					.Build();
-				policy = new AuthorizeFilter(built);
-			}
+				// This lambda determines whether user consent for non-essential cookies is needed for a given request.
+				options.CheckConsentNeeded = context => false;
+				options.MinimumSameSitePolicy = SameSiteMode.None;
+			});
 
-            services.AddMvc(o =>
-            {
-                o.Filters.Add(policy);
-                o.Filters.Add(typeof(DBSaveChangesFilter));
-                o.EnableEndpointRouting = false;
-                o.ReturnHttpNotAcceptable = true;
-            }).AddNewtonsoftJson()
-.AddSessionStateTempDataProvider()
-.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+			services.AddDbContextPool<RaBeContext>(options => { options.UseSqlite("DataSource=./RaBe.db"); });
 
-            services.AddCors(o =>
-            {
-                o.AddDefaultPolicy(cp =>
-                {
-                    cp.AllowAnyOrigin();
-                    cp.AllowAnyHeader();
-                    cp.AllowAnyMethod();
-                });
-            });
+			services.AddDistributedMemoryCache();
+			services.AddSession(opts =>
+			{
+				opts.Cookie.HttpOnly = false;
+				opts.Cookie.IsEssential = true;
+			});
 
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => false;
-                options.MinimumSameSitePolicy = SameSiteMode.Strict;
-            });
+			//Configure JWT Token Authentication
+			services.AddAuthentication(auth =>
+				{
+					auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+					auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				})
+				.AddJwtBearer(token =>
+				{
+					token.RequireHttpsMetadata = false;
+					token.SaveToken = true;
+					token.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuerSigningKey = true,
+						//Same Secret key will be used while creating the token
+						IssuerSigningKey = new SymmetricSecurityKey(SecretKey),
+						ValidateIssuer = true,
+						//Usually, this is your application base URL
+						ValidIssuer = "http://localhost:80",
+						ValidateAudience = true,
+						//Here, we are creating and using JWT within the same application.
+						//In this case, base URL is fine.
+						//If the JWT is created using a web service, then this would be the consumer URL.
+						ValidAudience = "GSO",
+						RequireExpirationTime = true,
+						ValidateLifetime = true,
+						ClockSkew = TimeSpan.FromMinutes(5)
+					};
+				});
 
-            services.AddDbContext<RaBeContext>();
+			services.AddAuthorization();
 
-            services.Configure<GzipCompressionProviderOptions>
-                (options => options.Level = CompressionLevel.Fastest);
-            services.AddResponseCompression(options =>
-            {
-                options.Providers.Add<GzipCompressionProvider>();
-            });
-
-            services.AddDistributedMemoryCache();
-            services.AddSession(opts =>
-            {
-                opts.IdleTimeout = TimeSpan.FromHours(24);
-                opts.Cookie.HttpOnly = false;
-                opts.Cookie.IsEssential = true;
-            });
-
-            //Configure JWT Token Authentication
-            services.AddAuthentication(auth =>
-            {
-                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(token =>
-                {
-                    token.RequireHttpsMetadata = false;
-                    token.SaveToken = true;
-                    token.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        //Same Secret key will be used while creating the token
-                        IssuerSigningKey = new SymmetricSecurityKey(SecretKey),
-                        ValidateIssuer = true,
-                        //Usually, this is your application base URL
-                        ValidIssuer = "http://localhost:80/",
-                        ValidateAudience = true,
-                        //Here, we are creating and using JWT within the same application.
-                        //In this case, base URL is fine.
-                        //If the JWT is created using a web service, then this would be the consumer URL.
-                        ValidAudience = "GSO",
-                        RequireExpirationTime = true,
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.FromMinutes(5)
-                    };
-                });
-
-            services.AddOpenApiDocument(g =>
+			services.AddOpenApiDocument(g =>
 			{
 				g.Title = "RaBe Backend";
 				g.OperationProcessors.Add(new OperationSecurityScopeProcessor("JWT"));
@@ -168,7 +136,7 @@ namespace RaBe
 				.AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com",
 					int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25"));
 
-            services.AddHttpContextAccessor();
+			services.AddHttpContextAccessor();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -176,20 +144,14 @@ namespace RaBe
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
 #pragma warning restore CS0618 // Typ oder Element ist veraltet
 		{
-            app.UseCookiePolicy();
-            app.UseSession();
-            app.UseCors();
+			app.UseSession();
+			app.UseCookiePolicy();
+			app.UseCors();
 			app.UseRewriter(new RewriteOptions().AddRedirect("^$", "/swagger"));
 
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-			}
-			else
-			{
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-				app.UseHsts();
-				app.UseResponseCompression();
 			}
 
 			if (!env.IsDevelopment())
@@ -197,35 +159,31 @@ namespace RaBe
 				app.UseHttpsRedirection();
 			}
 
-			//Add JWToken to all incoming HTTP Request Header
-			app.Use(async (context, next) =>
-			{
-				var JWToken = context.Session.GetString("JWToken");
-
-				if (!string.IsNullOrEmpty(JWToken))
-				{
-                    if(app.ApplicationServices.GetService<RaBeContext>().Lehrer.Any(l => l.Token == JWToken))
-                    {
-                        context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
-                    }
-				}
-
-				await next();
-			});
 			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseOpenApi();
 			app.UseSwaggerUi3();
 
-            if (env.IsDevelopment())
-            {
-                IdentityModelEventSource.ShowPII = true;
-            }
+			if (env.IsDevelopment())
+			{
+				IdentityModelEventSource.ShowPII = true;
+			}
 
-            app.UseMvc();
+			app.UseMvc();
 
-            // ===== Create tables ======
-            dbContext.Database.EnsureCreated();
+			// ===== Create tables ======
+			dbContext.Database.EnsureCreated();
+		}
+
+#pragma warning disable CS0618 // Typ oder Element ist veraltet
+		private readonly IHostingEnvironment env;
+
+		public Startup(IConfiguration configuration, IHostingEnvironment env)
+#pragma warning restore CS0618 // Typ oder Element ist veraltet
+		{
+			Configuration = configuration;
+			this.env = env;
 		}
 	}
 }

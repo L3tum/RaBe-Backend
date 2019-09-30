@@ -7,11 +7,7 @@ namespace RaBe
 {
     public partial class RaBeContext : DbContext
     {
-        public RaBeContext()
-        {
-        }
-
-        public RaBeContext(DbContextOptions<RaBeContext> options)
+	    public RaBeContext(DbContextOptions<RaBeContext> options)
             : base(options)
         {
         }
