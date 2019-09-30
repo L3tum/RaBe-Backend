@@ -54,6 +54,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Healthcheck.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="RaBe.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -71,17 +71,25 @@ namespace RaBe
 				policy = new AuthorizeFilter(built);
 			}
 
-			services.AddMvcCore(o =>
+			services.AddMvc(o =>
 				{
 					o.Filters.Add(policy);
 					o.Filters.Add(typeof(DBSaveChangesFilter));
 					o.EnableEndpointRouting = false;
 					o.ReturnHttpNotAcceptable = true;
-				}).AddNewtonsoftJson().AddApiExplorer().AddAuthorization().AddCors().AddCacheTagHelper()
+				}).AddNewtonsoftJson()
 				.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-			services.AddDbContext<RaBeContext>();
-			services.AddSession();
+            services.AddDbContext<RaBeContext>();
+
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            services.AddSession();
+
             services.Configure<GzipCompressionProviderOptions>
                 (options => options.Level = CompressionLevel.Fastest);
             services.AddResponseCompression(options =>
@@ -162,10 +170,11 @@ namespace RaBe
 					setup.Host = Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com";
 					setup.Port = int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25");
 				})
-				.AddSqlite("DataSource=./RaBe.db")
+				.AddSqlite("DataSource=./RaBe.db", name: "RaBe DB")
+                .AddSqlite("DataSource=./Healthcheck.db", name: "Healthcheck DB")
 				.AddDbContextCheck<RaBeContext>();
 			services.AddHealthChecksUI(setupSettings: settings =>
-				settings.SetHealthCheckDatabaseConnectionString("DataSource=./RaBe.db")
+				settings.SetHealthCheckDatabaseConnectionString("DataSource=./Healthcheck.db")
 					.AddHealthCheckEndpoint("RaBe Backend", GetHealthUri()));
 		}
 
