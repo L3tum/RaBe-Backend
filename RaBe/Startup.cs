@@ -80,6 +80,7 @@ namespace RaBe
 
 			services.AddDbContext<RaBeContext>();
 			services.AddSession();
+            services.AddHttpContextAccessor();
 
 			//Configure JWT Token Authentication
 			services.AddAuthentication(auth =>
