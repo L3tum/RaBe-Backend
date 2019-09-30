@@ -9,14 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.Sqlite" Version="3.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.System" Version="3.0.0" />
-    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="3.0.0" />
     <PackageReference Include="FluentEmail.Core" Version="2.7.0" />
     <PackageReference Include="FluentEmail.Razor" Version="2.7.0" />
     <PackageReference Include="FluentEmail.Smtp" Version="2.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.11" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.4">
       <PrivateAssets>all</PrivateAssets>
@@ -57,10 +54,10 @@
     <None Update="Healthcheck.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="RaBe.sql">
+    <None Update="RaBe.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="RaBe.db">
+    <None Update="RaBe.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

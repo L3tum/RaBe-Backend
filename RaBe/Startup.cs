@@ -8,11 +8,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +21,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation;
@@ -43,8 +41,6 @@ namespace RaBe
 #pragma warning disable CS0618 // Typ oder Element ist veraltet
 		private readonly IHostingEnvironment env;
 #pragma warning restore CS0618 // Typ oder Element ist veraltet
-		private static DateTime lastTs;
-		private static TimeSpan lastProcessorTime;
 
 #pragma warning disable CS0618 // Typ oder Element ist veraltet
 		public Startup(IConfiguration configuration, IHostingEnvironment env)
@@ -52,8 +48,6 @@ namespace RaBe
 		{
 			Configuration = configuration;
 			this.env = env;
-			lastTs = DateTime.UtcNow;
-			lastProcessorTime = TimeSpan.Zero;
 		}
 
 		public IConfiguration Configuration { get; }
@@ -61,7 +55,7 @@ namespace RaBe
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			IFilterMetadata policy = null;
+            IFilterMetadata policy = null;
 
 			if (env.IsDevelopment())
 			{
@@ -74,6 +68,16 @@ namespace RaBe
 					.Build();
 				policy = new AuthorizeFilter(built);
 			}
+
+            services.AddMvc(o =>
+            {
+                o.Filters.Add(policy);
+                o.Filters.Add(typeof(DBSaveChangesFilter));
+                o.EnableEndpointRouting = false;
+                o.ReturnHttpNotAcceptable = true;
+            }).AddNewtonsoftJson()
+.AddSessionStateTempDataProvider()
+.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddCors(o =>
             {
@@ -88,22 +92,9 @@ namespace RaBe
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.CheckConsentNeeded = context => false;
+                options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
-            services.AddSession(opts =>
-            {
-                opts.Cookie.IsEssential = true; // make the session cookie Essential
-            });
-
-            services.AddMvc(o =>
-				{
-					o.Filters.Add(policy);
-					o.Filters.Add(typeof(DBSaveChangesFilter));
-					o.EnableEndpointRouting = false;
-					o.ReturnHttpNotAcceptable = true;
-				}).AddNewtonsoftJson()
-				.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDbContext<RaBeContext>();
 
@@ -114,36 +105,44 @@ namespace RaBe
                 options.Providers.Add<GzipCompressionProvider>();
             });
 
+            services.AddDistributedMemoryCache();
+            services.AddSession(opts =>
+            {
+                opts.IdleTimeout = TimeSpan.FromHours(24);
+                opts.Cookie.HttpOnly = false;
+                opts.Cookie.IsEssential = true;
+            });
+
             //Configure JWT Token Authentication
             services.AddAuthentication(auth =>
-				{
-					auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-				})
-				.AddJwtBearer(token =>
-				{
-					token.RequireHttpsMetadata = false;
-					token.SaveToken = true;
-					token.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuerSigningKey = true,
-						//Same Secret key will be used while creating the token
-						IssuerSigningKey = new SymmetricSecurityKey(SecretKey),
-						ValidateIssuer = true,
-						//Usually, this is your application base URL
-						ValidIssuer = "http://localhost:80/",
-						ValidateAudience = true,
-						//Here, we are creating and using JWT within the same application.
-						//In this case, base URL is fine.
-						//If the JWT is created using a web service, then this would be the consumer URL.
-						ValidAudience = "GSO",
-						RequireExpirationTime = true,
-						ValidateLifetime = true,
-						ClockSkew = TimeSpan.FromMinutes(5)
-					};
+            {
+                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(token =>
+                {
+                    token.RequireHttpsMetadata = false;
+                    token.SaveToken = true;
+                    token.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        //Same Secret key will be used while creating the token
+                        IssuerSigningKey = new SymmetricSecurityKey(SecretKey),
+                        ValidateIssuer = true,
+                        //Usually, this is your application base URL
+                        ValidIssuer = "http://localhost:80/",
+                        ValidateAudience = true,
+                        //Here, we are creating and using JWT within the same application.
+                        //In this case, base URL is fine.
+                        //If the JWT is created using a web service, then this would be the consumer URL.
+                        ValidAudience = "GSO",
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromMinutes(5)
+                    };
                 });
 
-			services.AddOpenApiDocument(g =>
+            services.AddOpenApiDocument(g =>
 			{
 				g.Title = "RaBe Backend";
 				g.OperationProcessors.Add(new OperationSecurityScopeProcessor("JWT"));
@@ -169,20 +168,7 @@ namespace RaBe
 				.AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com",
 					int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25"));
 
-			services.AddHealthChecks()
-				.AddDiskStorageHealthCheck(setup => { setup.AddDrive(new DriveInfo(env.ContentRootPath).Name); })
-				.AddCheck<MemoryHealthCheck>("memory")
-				.AddSmtpHealthCheck(setup =>
-				{
-					setup.Host = Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com";
-					setup.Port = int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25");
-				})
-				.AddSqlite("DataSource=./RaBe.db", name: "RaBe DB")
-                .AddSqlite("DataSource=./Healthcheck.db", name: "Healthcheck DB")
-				.AddDbContextCheck<RaBeContext>();
-			services.AddHealthChecksUI(setupSettings: settings =>
-				settings.SetHealthCheckDatabaseConnectionString("DataSource=./Healthcheck.db")
-					.AddHealthCheckEndpoint("RaBe Backend", GetHealthUri()));
+            services.AddHttpContextAccessor();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -190,20 +176,9 @@ namespace RaBe
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
 #pragma warning restore CS0618 // Typ oder Element ist veraltet
 		{
+            app.UseCookiePolicy();
+            app.UseSession();
             app.UseCors();
-			app.UseSession();
-			app.UseMvc();
-			app.UseHealthChecks("/health", new HealthCheckOptions
-				{
-					Predicate = _ => true
-				})
-				.UseHealthChecks("/healthz", new HealthCheckOptions
-				{
-					Predicate = _ => true,
-					ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-				});
-			app.UseHealthChecksUI();
-			app.UseRouting().UseEndpoints(config => { config.MapHealthChecksUI(); });
 			app.UseRewriter(new RewriteOptions().AddRedirect("^$", "/swagger"));
 
 			if (env.IsDevelopment())
@@ -242,15 +217,15 @@ namespace RaBe
 			app.UseOpenApi();
 			app.UseSwaggerUi3();
 
-			// ===== Create tables ======
-			dbContext.Database.EnsureCreated();
-		}
+            if (env.IsDevelopment())
+            {
+                IdentityModelEventSource.ShowPII = true;
+            }
 
-		private string GetHealthUri()
-		{
-			return (Environment.GetEnvironmentVariable("APPLICATION_URL") ?? (env.IsDevelopment()
-				        ? "http://localhost:53125"
-				        : "https://rabe-backend.herokuapp.com")) + "/healthz";
+            app.UseMvc();
+
+            // ===== Create tables ======
+            dbContext.Database.EnsureCreated();
 		}
 	}
 }

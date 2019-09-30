@@ -34,7 +34,7 @@ namespace RaBe.Controllers
 		[ProducesResponseType(typeof(Lehrer), 400)]
 		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
-		public ActionResult<Lehrer> Login(LoginRequest request)
+		public IActionResult Login(LoginRequest request)
 		{
             if(request == null)
             {
@@ -48,24 +48,34 @@ namespace RaBe.Controllers
 				return NotFound();
 			}
 
-			using (var sha = SHA256.Create())
+            if (HttpContext.Session.GetInt32("fails") >= 3)
+            {
+                lehrer.Blocked = true;
+                _context.Lehrer.Update(lehrer);
+
+                return BadRequest(lehrer);
+            }
+
+            using (var sha = SHA256.Create())
 			{
 				var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + SALT)));
 
 				if (lehrer.Password == hash)
 				{
-					if (lehrer.Blocked == 1)
+					if (lehrer.Blocked == true)
 					{
 						return BadRequest(lehrer);
 					}
 
-					lehrer.Token = TokenProvider.GetToken(lehrer).ToString();
+					lehrer.Token = TokenProvider.GetToken(lehrer);
 
 					_context.Lehrer.Update(lehrer);
-					HttpContext.Session.SetString("JWToken", lehrer.Token);
+					HttpContext.Session.SetString("JWToken", "12");
 
-					return Ok(lehrer);
+                    return Ok(lehrer);
 				}
+
+                HttpContext.Session.SetInt32("fails", HttpContext.Session.GetInt32("fails") ?? 1);
 
 				return Unauthorized();
 			}
@@ -102,7 +112,16 @@ namespace RaBe.Controllers
                 return BadRequest();
             }
 
-			var lehrer = _context.Lehrer.First(l => l.Token == HttpContext.Session.GetString("JWToken"));
+            var token = HttpContext.Session.GetString("JWToken");
+
+            return Ok(new { token = token, session = HttpContext.Request.HttpContext.Session.Keys });
+
+            if(token == null)
+            {
+                return Unauthorized();
+            }
+
+            var lehrer = _context.Lehrer.FirstOrDefault(l => l.Token == token);
 
 			if (lehrer == null)
 			{
@@ -117,7 +136,7 @@ namespace RaBe.Controllers
 				{
 					lehrer.Password =
 						Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(request.newPassword + SALT)));
-					lehrer.PasswordGeaendert = 1;
+					lehrer.PasswordGeaendert = true;
 
 					_context.Lehrer.Update(lehrer);
 

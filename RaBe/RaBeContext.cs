@@ -1,245 +1,221 @@
-﻿#region using
-
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using RaBe.Model;
-
-#endregion
 
 namespace RaBe
 {
-	public partial class RaBeContext : DbContext
-	{
-		public RaBeContext()
-		{
-		}
+    public partial class RaBeContext : DbContext
+    {
+        public RaBeContext()
+        {
+        }
 
-		public RaBeContext(DbContextOptions<RaBeContext> options)
-			: base(options)
-		{
-		}
+        public RaBeContext(DbContextOptions<RaBeContext> options)
+            : base(options)
+        {
+        }
 
-		public virtual DbSet<Arbeitsplatz> Arbeitsplatz { get; set; }
-		public virtual DbSet<Fehler> Fehler { get; set; }
-		public virtual DbSet<Kategorie> Kategorie { get; set; }
-		public virtual DbSet<Lehrer> Lehrer { get; set; }
-		public virtual DbSet<LehrerRaum> LehrerRaum { get; set; }
-		public virtual DbSet<Raum> Raum { get; set; }
-		public virtual DbSet<StandardFehler> StandardFehler { get; set; }
+        public virtual DbSet<Arbeitsplatz> Arbeitsplatz { get; set; }
+        public virtual DbSet<Fehler> Fehler { get; set; }
+        public virtual DbSet<Kategorie> Kategorie { get; set; }
+        public virtual DbSet<Lehrer> Lehrer { get; set; }
+        public virtual DbSet<LehrerRaum> LehrerRaum { get; set; }
+        public virtual DbSet<Raum> Raum { get; set; }
+        public virtual DbSet<StandardFehler> StandardFehler { get; set; }
 
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-		{
-			if (!optionsBuilder.IsConfigured)
-			{
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-				optionsBuilder.UseSqlite("DataSource=./RaBe.db");
-			}
-		}
+                optionsBuilder.UseSqlite("DataSource=.\\RaBe.db");
+            }
+        }
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
-		{
-			modelBuilder.Entity<Arbeitsplatz>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("integer")
-					.ValueGeneratedOnAdd();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Arbeitsplatz>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.Name)
-					.IsRequired()
-					.HasColumnName("name")
-					.HasColumnType("varchar(255)");
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(255)");
 
-				entity.Property(e => e.Position)
-					.HasColumnName("position")
-					.HasColumnType("integer");
+                entity.Property(e => e.Position).HasColumnName("position");
 
-				entity.Property(e => e.RaumId)
-					.HasColumnName("raum_id")
-					.HasColumnType("integer");
+                entity.Property(e => e.RaumId).HasColumnName("raum_id");
 
-				entity.HasOne(d => d.Raum)
-					.WithMany(p => p.Arbeitsplatz)
-					.HasForeignKey(d => d.RaumId)
-					.OnDelete(DeleteBehavior.ClientSetNull);
-			});
+                entity.HasOne(d => d.Raum)
+                    .WithMany(p => p.Arbeitsplatz)
+                    .HasForeignKey(d => d.RaumId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
-			modelBuilder.Entity<Fehler>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("integer")
-					.ValueGeneratedOnAdd();
+            modelBuilder.Entity<Fehler>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.ArbeitsplatzId)
-					.HasColumnName("arbeitsplatz_id")
-					.HasColumnType("integer");
+                entity.Property(e => e.ArbeitsplatzId).HasColumnName("arbeitsplatz_id");
 
-				entity.Property(e => e.Beschreibung)
-					.HasColumnName("beschreibung")
-					.HasColumnType("varchar(5000)");
+                entity.Property(e => e.Beschreibung)
+                    .HasColumnName("beschreibung")
+                    .HasColumnType("varchar(5000)");
 
-				entity.Property(e => e.KategorieId)
-					.HasColumnName("kategorie_id")
-					.HasColumnType("integer");
+                entity.Property(e => e.KategorieId).HasColumnName("kategorie_id");
 
-				entity.Property(e => e.Status)
-					.HasColumnName("status")
-					.HasColumnType("integer")
-					.HasDefaultValueSql("1");
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasDefaultValueSql("1");
 
-				entity.Property(e => e.Titel)
-					.IsRequired()
-					.HasColumnName("titel")
-					.HasColumnType("varchar(255)");
+                entity.Property(e => e.Titel)
+                    .IsRequired()
+                    .HasColumnName("titel")
+                    .HasColumnType("varchar(255)");
 
-				entity.HasOne(d => d.Arbeitsplatz)
-					.WithMany(p => p.Fehler)
-					.HasForeignKey(d => d.ArbeitsplatzId)
-					.OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(d => d.Arbeitsplatz)
+                    .WithMany(p => p.Fehler)
+                    .HasForeignKey(d => d.ArbeitsplatzId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
-				entity.HasOne(d => d.Kategorie)
-					.WithMany(p => p.Fehler)
-					.HasForeignKey(d => d.KategorieId)
-					.OnDelete(DeleteBehavior.ClientSetNull);
-			});
+                entity.HasOne(d => d.Kategorie)
+                    .WithMany(p => p.Fehler)
+                    .HasForeignKey(d => d.KategorieId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
-			modelBuilder.Entity<Kategorie>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("integer")
-					.ValueGeneratedOnAdd();
+            modelBuilder.Entity<Kategorie>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.Name)
-					.IsRequired()
-					.HasColumnName("name")
-					.HasColumnType("varchar(255)");
-			});
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(255)");
+            });
 
-			modelBuilder.Entity<Lehrer>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("INT")
-					.ValueGeneratedOnAdd();
+            modelBuilder.Entity<Lehrer>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.Email)
-					.IsRequired()
-					.HasColumnName("email")
-					.HasColumnType("varchar(255)");
+                entity.Property(e => e.Administrator)
+                    .IsRequired()
+                    .HasColumnName("administrator")
+                    .HasColumnType("bit")
+                    .HasDefaultValueSql("false");
 
-				entity.Property(e => e.Name)
-					.IsRequired()
-					.HasColumnName("name")
-					.HasColumnType("varchar(255)");
+                entity.Property(e => e.Blocked)
+                    .IsRequired()
+                    .HasColumnName("blocked")
+                    .HasColumnType("bit")
+                    .HasDefaultValueSql("false");
 
-				entity.Property(e => e.Password)
-					.IsRequired()
-					.HasColumnName("password")
-					.HasColumnType("varchar(255)");
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasColumnName("email")
+                    .HasColumnType("varchar(255)");
 
-				entity.Property(e => e.PasswordGeaendert)
-					.HasColumnName("passwordGeaendert")
-					.HasColumnType("integer")
-					.HasDefaultValueSql("false");
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(255)");
 
-				entity.Property(e => e.Blocked)
-					.HasColumnName("blocked")
-					.HasColumnType("integer")
-					.HasDefaultValueSql("false");
-				entity.Property(e => e.Administrator)
-					.HasColumnName("administrator")
-					.HasColumnType("integer")
-					.HasDefaultValueSql("false");
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasColumnName("password")
+                    .HasColumnType("varchar(255)");
 
-				entity.Property(e => e.Token)
-					.HasColumnName("token")
-					.HasColumnType("varchar(255)");
-			});
+                entity.Property(e => e.PasswordGeaendert)
+                    .IsRequired()
+                    .HasColumnName("passwordGeaendert")
+                    .HasColumnType("bit")
+                    .HasDefaultValueSql("false");
 
-			modelBuilder.Entity<LehrerRaum>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("integer")
-					.ValueGeneratedOnAdd();
+                entity.Property(e => e.Token)
+                    .HasColumnName("token")
+                    .HasColumnType("varchar(255)");
+            });
 
-				entity.Property(e => e.Betreuer)
-					.HasColumnName("betreuer")
-					.HasColumnType("tinyint")
-					.HasDefaultValueSql("false");
+            modelBuilder.Entity<LehrerRaum>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.LehrerId)
-					.HasColumnName("lehrer_id")
-					.HasColumnType("integer");
+                entity.Property(e => e.Betreuer)
+                    .HasColumnName("betreuer")
+                    .HasColumnType("tinyint")
+                    .HasDefaultValueSql("false");
 
-				entity.Property(e => e.RaumId)
-					.HasColumnName("raum_id")
-					.HasColumnType("integer");
+                entity.Property(e => e.LehrerId).HasColumnName("lehrer_id");
 
-				entity.HasOne(d => d.Lehrer)
-					.WithMany(p => p.LehrerRaum)
-					.HasForeignKey(d => d.LehrerId)
-					.OnDelete(DeleteBehavior.ClientSetNull);
+                entity.Property(e => e.RaumId).HasColumnName("raum_id");
 
-				entity.HasOne(d => d.Raum)
-					.WithMany(p => p.LehrerRaum)
-					.HasForeignKey(d => d.RaumId)
-					.OnDelete(DeleteBehavior.ClientSetNull);
-			});
+                entity.HasOne(d => d.Lehrer)
+                    .WithMany(p => p.LehrerRaum)
+                    .HasForeignKey(d => d.LehrerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
 
-			modelBuilder.Entity<Raum>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("integer")
-					.ValueGeneratedOnAdd();
+                entity.HasOne(d => d.Raum)
+                    .WithMany(p => p.LehrerRaum)
+                    .HasForeignKey(d => d.RaumId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
-				entity.Property(e => e.Name)
-					.IsRequired()
-					.HasColumnName("name")
-					.HasColumnType("varchar(255)");
+            modelBuilder.Entity<Raum>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.Vorlage)
-					.HasColumnName("vorlage")
-					.HasColumnType("integer");
-			});
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(255)");
 
-			modelBuilder.Entity<StandardFehler>(entity =>
-			{
-				entity.Property(e => e.Id)
-					.HasColumnName("id")
-					.HasColumnType("integer")
-					.ValueGeneratedOnAdd();
+                entity.Property(e => e.Vorlage).HasColumnName("vorlage");
+            });
 
-				entity.Property(e => e.Beschreibung)
-					.HasColumnName("beschreibung")
-					.HasColumnType("varchar(5000)");
+            modelBuilder.Entity<StandardFehler>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
 
-				entity.Property(e => e.KategorieId)
-					.HasColumnName("kategorie_id")
-					.HasColumnType("integer");
+                entity.Property(e => e.Beschreibung)
+                    .HasColumnName("beschreibung")
+                    .HasColumnType("varchar(5000)");
 
-				entity.Property(e => e.Status)
-					.HasColumnName("status")
-					.HasColumnType("integer")
-					.HasDefaultValueSql("1");
+                entity.Property(e => e.KategorieId).HasColumnName("kategorie_id");
 
-				entity.Property(e => e.Titel)
-					.IsRequired()
-					.HasColumnName("titel")
-					.HasColumnType("varchar(255)");
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasDefaultValueSql("1");
 
-				entity.HasOne(d => d.Kategorie)
-					.WithMany(p => p.StandardFehler)
-					.HasForeignKey(d => d.KategorieId)
-					.OnDelete(DeleteBehavior.ClientSetNull);
-			});
+                entity.Property(e => e.Titel)
+                    .IsRequired()
+                    .HasColumnName("titel")
+                    .HasColumnType("varchar(255)");
 
-			OnModelCreatingPartial(modelBuilder);
-		}
+                entity.HasOne(d => d.Kategorie)
+                    .WithMany(p => p.StandardFehler)
+                    .HasForeignKey(d => d.KategorieId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
-		partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-	}
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
 }

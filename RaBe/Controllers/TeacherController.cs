@@ -171,24 +171,5 @@ namespace RaBe.Controllers
 
 			return Ok();
 		}
-
-		[HttpPost("[action]")]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(404)]
-		public IActionResult BlockLock(BlockLockRequest request)
-		{
-			var lehrer = context.Lehrer.FirstOrDefault(l => l.Email == request.email);
-
-			if (lehrer == null)
-			{
-				return NotFound();
-			}
-
-			lehrer.Blocked = 1;
-
-			context.Lehrer.Update(lehrer);
-
-			return Ok();
-		}
 	}
 }
