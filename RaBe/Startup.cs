@@ -71,7 +71,17 @@ namespace RaBe
 				policy = new AuthorizeFilter(built);
 			}
 
-			services.AddMvc(o =>
+            services.AddCors(o =>
+            {
+                o.AddDefaultPolicy(cp =>
+                {
+                    cp.AllowAnyOrigin();
+                    cp.AllowAnyHeader();
+                    cp.AllowAnyMethod();
+                });
+            });
+
+            services.AddMvc(o =>
 				{
 					o.Filters.Add(policy);
 					o.Filters.Add(typeof(DBSaveChangesFilter));
@@ -152,16 +162,6 @@ namespace RaBe
 				.AddSmtpSender(Environment.GetEnvironmentVariable("EMAIL_SERVER") ?? "smtp.google.com",
 					int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "25"));
 
-			services.AddCors(o =>
-			{
-				o.AddDefaultPolicy(cp =>
-				{
-					cp.AllowAnyOrigin();
-					cp.WithHeaders("authorization", "accept", "content-type", "origin");
-					cp.AllowAnyMethod();
-				});
-			});
-
 			services.AddHealthChecks()
 				.AddDiskStorageHealthCheck(setup => { setup.AddDrive(new DriveInfo(env.ContentRootPath).Name); })
 				.AddCheck<MemoryHealthCheck>("memory")
@@ -181,6 +181,7 @@ namespace RaBe
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
 		{
+            app.UseCors();
 			app.UseSession();
 			app.UseMvc();
 			app.UseHealthChecks("/health", new HealthCheckOptions
@@ -228,7 +229,6 @@ namespace RaBe
 
 			app.UseOpenApi();
 			app.UseSwaggerUi3();
-			app.UseCors();
 
 			// ===== Create tables ======
 			dbContext.Database.EnsureCreated();
