@@ -35,7 +35,7 @@ namespace RaBe.Controllers
 		{
 			var response = new AllErrorsResponse();
 
-			var errors = await _context.Fehler.ToListAsync();
+			var errors = await _context.Fehler.ToListAsync().ConfigureAwait(false);
 
 			foreach (var error in errors)
 			{

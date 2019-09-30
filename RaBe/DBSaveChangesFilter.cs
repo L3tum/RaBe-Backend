@@ -20,10 +20,11 @@ namespace RaBe
 			ActionExecutingContext context,
 			ActionExecutionDelegate next)
 		{
-			var result = await next();
+			var result = await next().ConfigureAwait(false);
+
 			if (result.Exception == null || result.ExceptionHandled)
 			{
-				await _dbContext.SaveChangesAsync();
+				await _dbContext.SaveChangesAsync().ConfigureAwait(false);
 			}
 		}
 	}

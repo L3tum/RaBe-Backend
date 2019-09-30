@@ -27,7 +27,7 @@ namespace RaBe.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<LehrerRaum>>> GetLehrerRaum()
 		{
-			return Ok(await _context.LehrerRaum.ToListAsync());
+			return Ok(await _context.LehrerRaum.ToListAsync().ConfigureAwait(false));
 		}
 
 		// GET: api/LehrerRaum/5

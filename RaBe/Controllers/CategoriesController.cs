@@ -26,7 +26,7 @@ namespace RaBe.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Kategorie>>> GetCategory()
 		{
-			return await _context.Kategorie.ToListAsync();
+			return await _context.Kategorie.ToListAsync().ConfigureAwait(false);
 		}
 
 		// GET: api/Categories/5
@@ -61,7 +61,7 @@ namespace RaBe.Controllers
 
 			try
 			{
-				await _context.SaveChangesAsync();
+				await _context.SaveChangesAsync().ConfigureAwait(false);
 			}
 			catch (DbUpdateConcurrencyException)
 			{
@@ -82,10 +82,16 @@ namespace RaBe.Controllers
 		[ProducesResponseType(409)]
 		public async Task<ActionResult<Kategorie>> PostCategory(Kategorie kategorie)
 		{
+            if(kategorie == null)
+            {
+                return BadRequest();
+            }
+
 			_context.Kategorie.Add(kategorie);
+
 			try
 			{
-				await _context.SaveChangesAsync();
+				await _context.SaveChangesAsync().ConfigureAwait(false);
 			}
 			catch (DbUpdateException)
 			{
@@ -113,7 +119,7 @@ namespace RaBe.Controllers
 			}
 
 			_context.Kategorie.Remove(kategorie);
-			await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync().ConfigureAwait(false);
 
 			return Ok(kategorie);
 		}

@@ -31,7 +31,7 @@ namespace RaBe.Controllers
 		[ProducesResponseType(typeof(IList<Lehrer>), 200)]
 		public async Task<IActionResult> GetAllTeachers()
 		{
-			return Ok(await context.Lehrer.ToListAsync());
+			return Ok(await context.Lehrer.ToListAsync().ConfigureAwait(false));
 		}
 
 		[HttpPost]

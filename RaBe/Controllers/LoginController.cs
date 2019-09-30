@@ -1,6 +1,7 @@
 ﻿#region using
 
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -35,9 +36,14 @@ namespace RaBe.Controllers
 		[ProducesResponseType(404)]
 		public ActionResult<Lehrer> Login(LoginRequest request)
 		{
-			var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
+            if(request == null)
+            {
+                return BadRequest();
+            }
 
-			if (lehrer == null)
+            var lehrer = _context.Lehrer.FirstOrDefault(l => l.Email.ToLower() == request.email.ToLower());
+
+            if (lehrer == null)
 			{
 				return NotFound();
 			}
@@ -91,6 +97,11 @@ namespace RaBe.Controllers
 		[ProducesResponseType(404)]
 		public IActionResult ChangePassword(PasswordChangeRequest request)
 		{
+            if(request == null)
+            {
+                return BadRequest();
+            }
+
 			var lehrer = _context.Lehrer.First(l => l.Token == HttpContext.Session.GetString("JWToken"));
 
 			if (lehrer == null)

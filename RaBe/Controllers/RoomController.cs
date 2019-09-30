@@ -25,7 +25,7 @@ namespace RaBe.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Raum>>> GetAllRooms()
 		{
-			return Ok(await context.Raum.ToListAsync());
+			return Ok(await context.Raum.ToListAsync().ConfigureAwait(false));
 		}
 
 		[HttpGet("[action]/{teacherId}")]

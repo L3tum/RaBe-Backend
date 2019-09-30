@@ -40,11 +40,15 @@ namespace RaBe
 		internal static readonly byte[] SecretKey = Encoding.ASCII.GetBytes
 			("RaBe-2374-OFFKDI940NG7:56753253-gso-5769-0921-kfirox29zoxv");
 
+#pragma warning disable CS0618 // Typ oder Element ist veraltet
 		private readonly IHostingEnvironment env;
+#pragma warning restore CS0618 // Typ oder Element ist veraltet
 		private static DateTime lastTs;
 		private static TimeSpan lastProcessorTime;
 
+#pragma warning disable CS0618 // Typ oder Element ist veraltet
 		public Startup(IConfiguration configuration, IHostingEnvironment env)
+#pragma warning restore CS0618 // Typ oder Element ist veraltet
 		{
 			Configuration = configuration;
 			this.env = env;
@@ -182,7 +186,9 @@ namespace RaBe
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+#pragma warning disable CS0618 // Typ oder Element ist veraltet
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, RaBeContext dbContext)
+#pragma warning restore CS0618 // Typ oder Element ist veraltet
 		{
             app.UseCors();
 			app.UseSession();
