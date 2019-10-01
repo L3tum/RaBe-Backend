@@ -23,8 +23,15 @@ namespace RaBe.Controllers
 		}
 
 		[HttpGet]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		public async Task<ActionResult<IEnumerable<Raum>>> GetAllRooms()
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			return Ok(await context.Raum.ToListAsync().ConfigureAwait(false));
 		}
 
@@ -44,6 +51,7 @@ namespace RaBe.Controllers
 
 		[HttpPut]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
 		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public IActionResult ModifyRoom(Raum raum)
@@ -51,6 +59,11 @@ namespace RaBe.Controllers
 			if (raum == null)
 			{
 				return BadRequest();
+			}
+
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
 			}
 
 			var dbRaum = context.Raum.FirstOrDefault(r => r.Id == raum.Id);
@@ -67,12 +80,18 @@ namespace RaBe.Controllers
 
 		[HttpPost]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
 		[ProducesResponseType(401)]
 		public IActionResult AddRoom(Raum raum)
 		{
 			if (raum == null)
 			{
 				return BadRequest();
+			}
+
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
 			}
 
 			context.Raum.Add(raum);
@@ -82,9 +101,15 @@ namespace RaBe.Controllers
 
 		[HttpDelete("{raumId}")]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public IActionResult DeleteRoom(int raumId)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var raum = context.Raum.FirstOrDefault(r => r.Id == raumId);
 
 			if (raum == null)

@@ -49,12 +49,18 @@ namespace RaBe.Controllers
 		[HttpPut("{id}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public async Task<IActionResult> PutCategory(long id, Kategorie kategorie)
 		{
 			if (id != kategorie.Id)
 			{
 				return BadRequest();
+			}
+
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
 			}
 
 			_context.Entry(kategorie).State = EntityState.Modified;
@@ -79,6 +85,7 @@ namespace RaBe.Controllers
 		// POST: api/Categories
 		[HttpPost]
 		[ProducesResponseType(typeof(Kategorie), 201)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(409)]
 		public async Task<ActionResult<Kategorie>> PostCategory(Kategorie kategorie)
 		{
@@ -87,7 +94,12 @@ namespace RaBe.Controllers
                 return BadRequest();
             }
 
-			_context.Kategorie.Add(kategorie);
+            if (!TokenProvider.IsAdmin(User))
+            {
+	            return Unauthorized();
+            }
+
+            _context.Kategorie.Add(kategorie);
 
 			try
 			{
@@ -109,10 +121,17 @@ namespace RaBe.Controllers
 		// DELETE: api/Categories/5
 		[HttpDelete("{id}")]
 		[ProducesResponseType(typeof(Kategorie), 200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public async Task<ActionResult<Kategorie>> DeleteCategory(long id)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var kategorie = await _context.Kategorie.FindAsync(id);
+
 			if (kategorie == null)
 			{
 				return NotFound();

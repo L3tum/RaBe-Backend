@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using RaBe.Model;
@@ -33,6 +34,15 @@ namespace RaBe
 			return tokenHandler.WriteToken(token);
 		}
 
+		internal static bool IsAdmin(ClaimsPrincipal user)
+		{
+			var admin = user.HasClaim(c => c.Type == "admin")
+				? user.Claims.First(c => c.Type == "admin").Value
+				: "0";
+
+			return admin == "1";
+		}
+
 		private static ClaimsIdentity GetUserClaims(Lehrer teacher)
 		{
 			return new ClaimsIdentity(new List<Claim>
@@ -40,6 +50,7 @@ namespace RaBe
 				new Claim("id", teacher.Id.ToString()),
 				new Claim("email", teacher.Email),
 				new Claim("name", teacher.Name),
+				new Claim("admin", teacher.Administrator ? "1" : "0"),
 				new Claim("random", DateTime.Now.ToString())
 			});
 		}
@@ -51,6 +62,7 @@ namespace RaBe
 				{"id", teacher.Id.ToString()},
 				{"email", teacher.Email},
 				{"name", teacher.Name},
+				{"admin", teacher.Administrator ? "1" : "0"},
 				{"random", DateTime.Now.ToString()}
 			};
 		}

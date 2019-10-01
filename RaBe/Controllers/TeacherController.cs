@@ -6,11 +6,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaBe.Model;
-using RaBe.RequestModel;
 
 #endregion
 
@@ -29,14 +27,21 @@ namespace RaBe.Controllers
 
 		[HttpGet]
 		[ProducesResponseType(typeof(IList<Lehrer>), 200)]
+		[ProducesResponseType(401)]
 		public async Task<IActionResult> GetAllTeachers()
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			return Ok(await context.Lehrer.ToListAsync().ConfigureAwait(false));
 		}
 
 		[HttpPost]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
+		[ProducesResponseType(401)]
 		public IActionResult AddTeacher(Lehrer lehrer)
 		{
 			if (lehrer == null)
@@ -44,9 +49,16 @@ namespace RaBe.Controllers
 				return BadRequest();
 			}
 
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			using (var sha = SHA256.Create())
 			{
-				lehrer.Password = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password + LoginController.SALT)));
+				lehrer.Password =
+					Convert.ToBase64String(
+						sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password + LoginController.SALT)));
 			}
 
 			context.Lehrer.Add(lehrer);
@@ -65,6 +77,11 @@ namespace RaBe.Controllers
 				return BadRequest();
 			}
 
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var dbLehrer = context.Lehrer.FirstOrDefault(r => r.Id == lehrer.Id);
 
 			if (dbLehrer == null)
@@ -81,9 +98,15 @@ namespace RaBe.Controllers
 
 		[HttpDelete("[action]/{teacherId}")]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public IActionResult DeleteTeacher(int teacherId)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
 			if (lehrer == null)
@@ -98,9 +121,15 @@ namespace RaBe.Controllers
 
 		[HttpPut("[action]/{teacherId}/{roomId}")]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public IActionResult MarkAsAuthority(int teacherId, int roomId)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
 			if (lehrer == null)
@@ -136,9 +165,15 @@ namespace RaBe.Controllers
 
 		[HttpDelete("[action]/{teacherId}/{roomId}")]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public IActionResult RemoveFromAuthority(int teacherId, int roomId)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
 			if (lehrer == null)
@@ -157,10 +192,7 @@ namespace RaBe.Controllers
 
 			if (teacherRoom == null)
 			{
-				teacherRoom = new LehrerRaum();
-				teacherRoom.LehrerId = teacherId;
-				teacherRoom.RaumId = roomId;
-				teacherRoom.Betreuer = 0;
+				teacherRoom = new LehrerRaum {LehrerId = teacherId, RaumId = roomId, Betreuer = 0};
 				context.LehrerRaum.Add(teacherRoom);
 			}
 			else

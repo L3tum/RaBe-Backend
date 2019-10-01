@@ -49,10 +49,16 @@ namespace RaBe.Controllers
 		// POST: api/LehrerRaum
 		[HttpPost]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		[ProducesResponseType(409)]
 		public async Task<ActionResult> PostLehrerRaum(TeacherRoomRequest request)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			if (await _context.Lehrer.FindAsync(request.teacherId) == null ||
 			    await _context.Raum.FindAsync(request.roomId) == null)
 			{
@@ -92,9 +98,15 @@ namespace RaBe.Controllers
 		// DELETE: api/LehrerRaum/5
 		[HttpDelete("{id}")]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public async Task<ActionResult> DeleteLehrerRaum(long id)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
 
 			if (lehrerRaum == null)
