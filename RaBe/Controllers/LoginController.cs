@@ -158,12 +158,16 @@ namespace RaBe.Controllers
 		[ProducesResponseType(401)]
 		public IActionResult IsLoggedIn()
 		{
-			var token = HttpContext.Session.GetString("JWToken");
+            var id = long.Parse(User.HasClaim(c => c.Type == "id")
+                ? User.Claims.First(c => c.Type == "id").Value
+                : "-1");
 
-			if (token == null)
-			{
-				return Unauthorized();
-			}
+            var lehrer = _context.Lehrer.Find(id);
+
+            if (lehrer == null)
+            {
+                return Unauthorized();
+            }
 
 			return Ok();
 		}
