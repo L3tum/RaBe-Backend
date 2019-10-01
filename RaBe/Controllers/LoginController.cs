@@ -1,7 +1,6 @@
 ﻿#region using
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -155,19 +154,25 @@ namespace RaBe.Controllers
 
 		[HttpGet]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
 		[ProducesResponseType(401)]
 		public IActionResult IsLoggedIn()
 		{
-            var id = long.Parse(User.HasClaim(c => c.Type == "id")
-                ? User.Claims.First(c => c.Type == "id").Value
-                : "-1");
+			var id = long.Parse(User.HasClaim(c => c.Type == "id")
+				? User.Claims.First(c => c.Type == "id").Value
+				: "-1");
 
-            var lehrer = _context.Lehrer.Find(id);
+			var lehrer = _context.Lehrer.Find(id);
 
-            if (lehrer == null)
-            {
-                return Unauthorized();
-            }
+			if (lehrer == null)
+			{
+				return Unauthorized();
+			}
+
+			if (lehrer.Blocked)
+			{
+				return BadRequest();
+			}
 
 			return Ok();
 		}
