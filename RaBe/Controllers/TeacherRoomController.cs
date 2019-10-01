@@ -25,17 +25,30 @@ namespace RaBe.Controllers
 
 		// GET: api/LehrerRaum
 		[HttpGet]
+		[ProducesResponseType(typeof(LehrerRaum), 200)]
+		[ProducesResponseType(401)]
 		public async Task<ActionResult<IEnumerable<LehrerRaum>>> GetLehrerRaum()
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			return Ok(await _context.LehrerRaum.ToListAsync().ConfigureAwait(false));
 		}
 
 		// GET: api/LehrerRaum/5
 		[HttpGet("{id}")]
 		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
 		[ProducesResponseType(404)]
 		public async Task<ActionResult<LehrerRaum>> GetLehrerRaum(long id)
 		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
 			var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
 
 			if (lehrerRaum == null)
