@@ -35,6 +35,21 @@ namespace RaBe.Controllers
 			return Ok(await context.Raum.ToListAsync().ConfigureAwait(false));
 		}
 
+        [HttpGet("{roomId}")]
+        [ProducesResponseType(typeof(Raum), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Raum>> GetRoom(int roomId)
+        {
+            var room = await context.Raum.FindAsync(roomId);
+
+            if(room == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(room);
+        }
+
 		[HttpGet("[action]/{teacherId}")]
 		[ProducesResponseType(typeof(IList<Raum>), 200)]
 		public IActionResult GetAllRoomsOfTeacher(int teacherId)
