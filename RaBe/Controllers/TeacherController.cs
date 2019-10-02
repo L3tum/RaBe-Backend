@@ -43,7 +43,7 @@ namespace RaBe.Controllers
         [ProducesResponseType(typeof(Lehrer), 200)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<Lehrer>> GetTeacher(int teacherId)
+        public async Task<ActionResult<Lehrer>> GetTeacher(long teacherId)
         {
             if (!TokenProvider.IsAdmin(User))
             {
