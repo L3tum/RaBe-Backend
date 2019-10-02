@@ -134,6 +134,7 @@ namespace RaBe.Controllers
 		[ProducesResponseType(422)]
 		public async Task<ActionResult<Fehler>> ReportError(Fehler fehler)
 		{
+            fehler.Id = default;
 			_context.Fehler.Add(fehler);
 
 			try
