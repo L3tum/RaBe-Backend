@@ -118,9 +118,12 @@ namespace RaBe.Controllers
                 return NotFound();
             }
 
-            lehrer.Password = dbLehrer.Password;
+            dbLehrer.Name = lehrer.Name;
+            dbLehrer.Email = lehrer.Email;
+            dbLehrer.Blocked = lehrer.Blocked;
+            dbLehrer.Administrator = lehrer.Administrator;
 
-            context.Lehrer.Update(lehrer);
+            context.Lehrer.Update(dbLehrer);
 
             return Ok();
         }
