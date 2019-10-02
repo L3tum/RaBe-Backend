@@ -56,13 +56,13 @@ namespace RaBe.Controllers
 		[HttpGet("[action]/{roomId}")]
 		public async Task<ActionResult<IEnumerable<Fehler>>> GetAllErrorsOfRoom(int roomId)
 		{
-			return await _context.Fehler.Where(f => f.Arbeitsplatz.RaumId == roomId).ToListAsync();
+			return await _context.Fehler.Where(f => f.Arbeitsplatz.RaumId == roomId && f.Status > 0).ToListAsync().ConfigureAwait(false);
 		}
 
 		[HttpGet("[action]/{workplaceId}")]
 		public async Task<ActionResult<IEnumerable<Fehler>>> GetAllErrorsOfWorkplace(int workplaceId)
 		{
-			return await _context.Fehler.Where(f => f.ArbeitsplatzId == workplaceId).ToListAsync();
+			return await _context.Fehler.Where(f => f.ArbeitsplatzId == workplaceId && f.Status > 0).ToListAsync().ConfigureAwait(false);
 		}
 
 		// GET: api/Errors/5

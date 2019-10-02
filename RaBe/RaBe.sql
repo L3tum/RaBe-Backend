@@ -5,7 +5,7 @@ CREATE TABLE StandardFehler (
 	beschreibung	varchar(5000) DEFAULT NULL,
 	titel	varchar(255) NOT NULL,
 	kategorie_id	integer NOT NULL,
-	FOREIGN KEY(kategorie_id) REFERENCES Kategorie(id),
+	FOREIGN KEY(kategorie_id) REFERENCES Kategorie(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(id)
 );
 CREATE TABLE Raum (
@@ -19,9 +19,9 @@ CREATE TABLE LehrerRaum (
 	betreuer	bit DEFAULT false,
 	lehrer_id	integer NOT NULL,
 	raum_id	integer NOT NULL,
-	FOREIGN KEY(raum_id) REFERENCES Raum(id),
+	FOREIGN KEY(raum_id) REFERENCES Raum(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(id),
-	FOREIGN KEY(lehrer_id) REFERENCES Lehrer(id)
+	FOREIGN KEY(lehrer_id) REFERENCES Lehrer(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE Lehrer (
 	id	integer,
@@ -46,8 +46,8 @@ CREATE TABLE Fehler (
 	titel	varchar(255) NOT NULL,
 	arbeitsplatz_id	integer NOT NULL,
 	kategorie_id	integer NOT NULL,
-	FOREIGN KEY(kategorie_id) REFERENCES Kategorie(id),
-	FOREIGN KEY(arbeitsplatz_id) REFERENCES Arbeitsplatz(id),
+	FOREIGN KEY(kategorie_id) REFERENCES Kategorie(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(arbeitsplatz_id) REFERENCES Arbeitsplatz(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(id)
 );
 CREATE TABLE Arbeitsplatz (
@@ -55,7 +55,7 @@ CREATE TABLE Arbeitsplatz (
 	name	varchar(255) NOT NULL,
 	raum_id	integer NOT NULL,
 	position	integer NOT NULL DEFAULT 0,
-	FOREIGN KEY(raum_id) REFERENCES Raum(id),
+	FOREIGN KEY(raum_id) REFERENCES Raum(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY(id)
 );
 INSERT INTO StandardFehler (id,status,beschreibung,titel,kategorie_id) VALUES (1,1,'Alle Tasten der Tastatur wurden zu Z geändert','Z-Attack',1);
