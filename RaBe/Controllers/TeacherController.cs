@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaBe.Model;
+using RaBe.RequestModel;
 
 #endregion
 
@@ -42,9 +43,9 @@ namespace RaBe.Controllers
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
 		[ProducesResponseType(401)]
-		public IActionResult AddTeacher(Lehrer lehrer)
+		public IActionResult AddTeacher(AddTeacherRequest request)
 		{
-			if (lehrer == null)
+			if (request == null)
 			{
 				return BadRequest();
 			}
@@ -54,11 +55,18 @@ namespace RaBe.Controllers
 				return Unauthorized();
 			}
 
+            var lehrer = new Lehrer()
+            {
+                Name = request.name,
+                Email = request.email,
+                Administrator = request.admin
+            };
+
 			using (var sha = SHA256.Create())
 			{
 				lehrer.Password =
 					Convert.ToBase64String(
-						sha.ComputeHash(Encoding.UTF8.GetBytes(lehrer.Password + LoginController.SALT)));
+						sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + LoginController.SALT)));
 			}
 
 			context.Lehrer.Add(lehrer);
