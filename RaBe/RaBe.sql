@@ -81,7 +81,7 @@ INSERT INTO Kategorie (id,name) VALUES (1,'Tastatur'),
 INSERT INTO Fehler (id,status,beschreibung,titel,arbeitsplatz_id,kategorie_id) VALUES (1,1,'Einige Tasten sind vertauscht','Tastaturtasten vertauscht',1,1),
  (2,2,'PC startet nicht','PC kaputt',12,4);
 INSERT INTO Arbeitsplatz (id,name,raum_id,position) VALUES (1,'p-0g-0c017-0001',1,0),
- (2,'p-0g-0c017-0002',1,0),
+ (2,'p-0g-0c017-0002',1,1),
  (3,'p-0g-0c017-0003',1,2),
  (4,'p-0g-0c017-0004',1,3),
  (5,'p-0g-0c017-0005',1,4),
@@ -91,5 +91,5 @@ INSERT INTO Arbeitsplatz (id,name,raum_id,position) VALUES (1,'p-0g-0c017-0001',
  (9,'p-0g-0c017-0009',1,8),
  (10,'p-0g-0c017-0010',1,9),
  (11,'p-0g-0c017-0011',1,10),
- (12,'p-0g-c005-0001',3,1);
+ (12,'p-0g-c005-0001',3,0);
 COMMIT;
