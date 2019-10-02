@@ -38,7 +38,7 @@ namespace RaBe.Controllers
         [HttpGet("{roomId}")]
         [ProducesResponseType(typeof(Raum), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<Raum>> GetRoom(int roomId)
+        public async Task<ActionResult<Raum>> GetRoom(long roomId)
         {
             var room = await context.Raum.FindAsync(roomId);
 
