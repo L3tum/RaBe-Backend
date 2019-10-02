@@ -94,7 +94,7 @@ namespace RaBe.Controllers
 		}
 
 		[HttpPost]
-		[ProducesResponseType(200)]
+		[ProducesResponseType(typeof(Raum), 200)]
 		[ProducesResponseType(400)]
 		[ProducesResponseType(401)]
 		public IActionResult AddRoom(Raum raum)
@@ -111,7 +111,11 @@ namespace RaBe.Controllers
 
 			context.Raum.Add(raum);
 
-			return Ok();
+            context.SaveChanges();
+
+            raum = context.Raum.FirstOrDefault(r => r.Name == raum.Name);
+
+			return Ok(raum);
 		}
 
 		[HttpDelete("{raumId}")]
