@@ -155,10 +155,18 @@ namespace RaBe.Controllers
 			var category = _context.Kategorie.Find(fehler.KategorieId);
 			var lehrer = await _context.LehrerRaum.Where(lr => lr.RaumId == workplace.RaumId).ToListAsync();
 
-			var ok = await SendErrorReportEmail(lehrer.Select(l => new Address(l.Lehrer.Email, l.Lehrer.Name)).ToList(),
-				workplace.Raum.Name, fehler.Titel, category.Name, workplace.Name, fehler.Status);
+			try
+			{
+				var ok = await SendErrorReportEmail(
+					lehrer.Select(l => new Address(l.Lehrer.Email, l.Lehrer.Name)).ToList(),
+					workplace.Raum.Name, fehler.Titel, category.Name, workplace.Name, fehler.Status);
 
-			if (!ok)
+				if (!ok)
+				{
+					return UnprocessableEntity("Email sending not ok");
+				}
+			}
+			catch
 			{
 				return UnprocessableEntity("Email sending not ok");
 			}
