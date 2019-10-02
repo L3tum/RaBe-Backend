@@ -150,7 +150,7 @@ namespace RaBe
 
                 entity.Property(e => e.Betreuer)
                     .HasColumnName("betreuer")
-                    .HasColumnType("tinyint")
+                    .HasColumnType("bit")
                     .HasDefaultValueSql("false");
 
                 entity.Property(e => e.LehrerId).HasColumnName("lehrer_id");

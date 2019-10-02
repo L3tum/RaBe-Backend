@@ -16,7 +16,7 @@ CREATE TABLE Raum (
 );
 CREATE TABLE LehrerRaum (
 	id	integer,
-	betreuer	tinyint DEFAULT false,
+	betreuer	bit DEFAULT false,
 	lehrer_id	integer NOT NULL,
 	raum_id	integer NOT NULL,
 	FOREIGN KEY(raum_id) REFERENCES Raum(id),

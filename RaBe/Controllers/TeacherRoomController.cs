@@ -44,6 +44,24 @@ namespace RaBe.Controllers
             return Ok(teacherRoom);
         }
 
+        [HttpGet("[action]/{roomId}")]
+        public ActionResult<LehrerRaum> GetBetreuer(int roomId)
+        {
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
+
+            var teacherRoom = _context.LehrerRaum.FirstOrDefault(lr => lr.RaumId == roomId && lr.Betreuer == true);
+
+            if (teacherRoom == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(teacherRoom);
+        }
+
         // GET: api/LehrerRaum
         [HttpGet]
         [ProducesResponseType(typeof(LehrerRaum), 200)]

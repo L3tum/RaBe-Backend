@@ -7,7 +7,7 @@ namespace RaBe.Model
     public partial class LehrerRaum
     {
         public long Id { get; set; }
-        public long? Betreuer { get; set; }
+        public bool Betreuer { get; set; }
         public long LehrerId { get; set; }
         public long RaumId { get; set; }
 
