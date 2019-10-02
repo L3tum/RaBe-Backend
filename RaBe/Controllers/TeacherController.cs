@@ -183,12 +183,12 @@ namespace RaBe.Controllers
                 teacherRoom = new LehrerRaum();
                 teacherRoom.LehrerId = teacherId;
                 teacherRoom.RaumId = roomId;
-                teacherRoom.Betreuer = 1;
+                teacherRoom.Betreuer = true;
                 context.LehrerRaum.Add(teacherRoom);
             }
             else
             {
-                teacherRoom.Betreuer = 1;
+                teacherRoom.Betreuer = true;
                 context.LehrerRaum.Update(teacherRoom);
             }
 
@@ -224,12 +224,12 @@ namespace RaBe.Controllers
 
             if (teacherRoom == null)
             {
-                teacherRoom = new LehrerRaum { LehrerId = teacherId, RaumId = roomId, Betreuer = 0 };
+                teacherRoom = new LehrerRaum { LehrerId = teacherId, RaumId = roomId, Betreuer = false };
                 context.LehrerRaum.Add(teacherRoom);
             }
             else
             {
-                teacherRoom.Betreuer = 0;
+                teacherRoom.Betreuer = false;
                 context.LehrerRaum.Update(teacherRoom);
             }
 
