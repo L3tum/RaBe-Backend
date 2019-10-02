@@ -15,45 +15,66 @@ using RaBe.RequestModel;
 
 namespace RaBe.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class TeacherController : ControllerBase
-	{
-		private readonly RaBeContext context;
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TeacherController : ControllerBase
+    {
+        private readonly RaBeContext context;
 
-		public TeacherController(RaBeContext context)
-		{
-			this.context = context;
-		}
+        public TeacherController(RaBeContext context)
+        {
+            this.context = context;
+        }
 
-		[HttpGet]
-		[ProducesResponseType(typeof(IList<Lehrer>), 200)]
-		[ProducesResponseType(401)]
-		public async Task<IActionResult> GetAllTeachers()
-		{
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
+        [HttpGet]
+        [ProducesResponseType(typeof(IList<Lehrer>), 200)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> GetAllTeachers()
+        {
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
-			return Ok(await context.Lehrer.ToListAsync().ConfigureAwait(false));
-		}
+            return Ok(await context.Lehrer.ToListAsync().ConfigureAwait(false));
+        }
 
-		[HttpPost]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		[ProducesResponseType(401)]
-		public IActionResult AddTeacher(AddTeacherRequest request)
-		{
-			if (request == null)
-			{
-				return BadRequest();
-			}
+        [HttpGet("{teacherId}")]
+        [ProducesResponseType(typeof(Lehrer), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Lehrer>> GetTeacher(int teacherId)
+        {
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
+            var lehrer = await context.Lehrer.FindAsync(teacherId);
+
+            if(lehrer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(lehrer);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public IActionResult AddTeacher(AddTeacherRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest();
+            }
+
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
             var lehrer = new Lehrer()
             {
@@ -62,154 +83,154 @@ namespace RaBe.Controllers
                 Administrator = request.admin
             };
 
-			using (var sha = SHA256.Create())
-			{
-				lehrer.Password =
-					Convert.ToBase64String(
-						sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + LoginController.SALT)));
-			}
+            using (var sha = SHA256.Create())
+            {
+                lehrer.Password =
+                    Convert.ToBase64String(
+                        sha.ComputeHash(Encoding.UTF8.GetBytes(request.password + LoginController.SALT)));
+            }
 
-			context.Lehrer.Add(lehrer);
+            context.Lehrer.Add(lehrer);
 
-			return Ok();
-		}
+            return Ok();
+        }
 
-		[HttpPut]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		[ProducesResponseType(401)]
-		public IActionResult ModifyTeacher(Lehrer lehrer)
-		{
-			if (lehrer == null)
-			{
-				return BadRequest();
-			}
+        [HttpPut]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public IActionResult ModifyTeacher(Lehrer lehrer)
+        {
+            if (lehrer == null)
+            {
+                return BadRequest();
+            }
 
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
-			var dbLehrer = context.Lehrer.FirstOrDefault(r => r.Id == lehrer.Id);
+            var dbLehrer = context.Lehrer.FirstOrDefault(r => r.Id == lehrer.Id);
 
-			if (dbLehrer == null)
-			{
-				return NotFound();
-			}
+            if (dbLehrer == null)
+            {
+                return NotFound();
+            }
 
-			lehrer.Password = dbLehrer.Password;
+            lehrer.Password = dbLehrer.Password;
 
-			context.Lehrer.Update(lehrer);
+            context.Lehrer.Update(lehrer);
 
-			return Ok();
-		}
+            return Ok();
+        }
 
-		[HttpDelete("[action]/{teacherId}")]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(401)]
-		[ProducesResponseType(404)]
-		public IActionResult DeleteTeacher(int teacherId)
-		{
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
+        [HttpDelete("[action]/{teacherId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteTeacher(int teacherId)
+        {
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
-			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
-			if (lehrer == null)
-			{
-				return NotFound();
-			}
+            if (lehrer == null)
+            {
+                return NotFound();
+            }
 
-			context.Lehrer.Remove(lehrer);
+            context.Lehrer.Remove(lehrer);
 
-			return Ok();
-		}
+            return Ok();
+        }
 
-		[HttpPut("[action]/{teacherId}/{roomId}")]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(401)]
-		[ProducesResponseType(404)]
-		public IActionResult MarkAsAuthority(int teacherId, int roomId)
-		{
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
+        [HttpPut("[action]/{teacherId}/{roomId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        public IActionResult MarkAsAuthority(int teacherId, int roomId)
+        {
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
-			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
-			if (lehrer == null)
-			{
-				return NotFound();
-			}
+            if (lehrer == null)
+            {
+                return NotFound();
+            }
 
-			var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
+            var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
 
-			if (room == null)
-			{
-				return NotFound();
-			}
+            if (room == null)
+            {
+                return NotFound();
+            }
 
-			var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
+            var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
 
-			if (teacherRoom == null)
-			{
-				teacherRoom = new LehrerRaum();
-				teacherRoom.LehrerId = teacherId;
-				teacherRoom.RaumId = roomId;
-				teacherRoom.Betreuer = 1;
-				context.LehrerRaum.Add(teacherRoom);
-			}
-			else
-			{
-				teacherRoom.Betreuer = 1;
-				context.LehrerRaum.Update(teacherRoom);
-			}
+            if (teacherRoom == null)
+            {
+                teacherRoom = new LehrerRaum();
+                teacherRoom.LehrerId = teacherId;
+                teacherRoom.RaumId = roomId;
+                teacherRoom.Betreuer = 1;
+                context.LehrerRaum.Add(teacherRoom);
+            }
+            else
+            {
+                teacherRoom.Betreuer = 1;
+                context.LehrerRaum.Update(teacherRoom);
+            }
 
-			return Ok();
-		}
+            return Ok();
+        }
 
-		[HttpDelete("[action]/{teacherId}/{roomId}")]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(401)]
-		[ProducesResponseType(404)]
-		public IActionResult RemoveFromAuthority(int teacherId, int roomId)
-		{
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
+        [HttpDelete("[action]/{teacherId}/{roomId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        public IActionResult RemoveFromAuthority(int teacherId, int roomId)
+        {
+            if (!TokenProvider.IsAdmin(User))
+            {
+                return Unauthorized();
+            }
 
-			var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
+            var lehrer = context.Lehrer.FirstOrDefault(r => r.Id == teacherId);
 
-			if (lehrer == null)
-			{
-				return NotFound();
-			}
+            if (lehrer == null)
+            {
+                return NotFound();
+            }
 
-			var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
+            var room = context.Raum.FirstOrDefault(r => r.Id == roomId);
 
-			if (room == null)
-			{
-				return NotFound();
-			}
+            if (room == null)
+            {
+                return NotFound();
+            }
 
-			var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
+            var teacherRoom = room.LehrerRaum.FirstOrDefault(l => l.Id == teacherId);
 
-			if (teacherRoom == null)
-			{
-				teacherRoom = new LehrerRaum {LehrerId = teacherId, RaumId = roomId, Betreuer = 0};
-				context.LehrerRaum.Add(teacherRoom);
-			}
-			else
-			{
-				teacherRoom.Betreuer = 0;
-				context.LehrerRaum.Update(teacherRoom);
-			}
+            if (teacherRoom == null)
+            {
+                teacherRoom = new LehrerRaum { LehrerId = teacherId, RaumId = roomId, Betreuer = 0 };
+                context.LehrerRaum.Add(teacherRoom);
+            }
+            else
+            {
+                teacherRoom.Betreuer = 0;
+                context.LehrerRaum.Update(teacherRoom);
+            }
 
-			return Ok();
-		}
-	}
+            return Ok();
+        }
+    }
 }
