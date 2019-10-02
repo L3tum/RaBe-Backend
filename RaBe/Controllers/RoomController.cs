@@ -27,11 +27,6 @@ namespace RaBe.Controllers
 		[ProducesResponseType(401)]
 		public async Task<ActionResult<IEnumerable<Raum>>> GetAllRooms()
 		{
-			if (!TokenProvider.IsAdmin(User))
-			{
-				return Unauthorized();
-			}
-
 			return Ok(await context.Raum.ToListAsync().ConfigureAwait(false));
 		}
 
