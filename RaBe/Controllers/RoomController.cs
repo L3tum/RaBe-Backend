@@ -83,7 +83,10 @@ namespace RaBe.Controllers
 				return NotFound();
 			}
 
-			context.Raum.Update(raum);
+			dbRaum.Name = raum.Name;
+			dbRaum.Vorlage = raum.Vorlage;
+
+			context.Raum.Update(dbRaum);
 
 			return Ok();
 		}
