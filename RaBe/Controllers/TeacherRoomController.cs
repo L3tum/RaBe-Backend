@@ -6,126 +6,182 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaBe.Model;
-using RaBe.RequestModel;
 
 #endregion
 
 namespace RaBe.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TeacherRoomController : ControllerBase
-    {
-        private readonly RaBeContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class TeacherRoomController : ControllerBase
+	{
+		private readonly RaBeContext _context;
 
-        public TeacherRoomController(RaBeContext context)
-        {
-            _context = context;
-        }
+		public TeacherRoomController(RaBeContext context)
+		{
+			_context = context;
+		}
 
-        [HttpGet("{roomId}/{teacherId}")]
-        [ProducesResponseType(typeof(LehrerRaum), 200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        public ActionResult<LehrerRaum> GetLehrerRaum(int roomId, int teacherId)
-        {
-            if (!TokenProvider.IsAdmin(User))
-            {
-                return Unauthorized();
-            }
+		[HttpGet("{roomId}/{teacherId}")]
+		[ProducesResponseType(typeof(LehrerRaum), 200)]
+		[ProducesResponseType(401)]
+		[ProducesResponseType(404)]
+		public ActionResult<LehrerRaum> GetLehrerRaum(int roomId, int teacherId)
+		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
 
-            var teacherRoom = _context.LehrerRaum.FirstOrDefault(lr => lr.RaumId == roomId && lr.LehrerId == teacherId);
+			var teacherRoom = _context.LehrerRaum.FirstOrDefault(lr => lr.RaumId == roomId && lr.LehrerId == teacherId);
 
-            if (teacherRoom == null)
-            {
-                return NotFound();
-            }
+			if (teacherRoom == null)
+			{
+				return NotFound();
+			}
 
-            return Ok(teacherRoom);
-        }
+			return Ok(teacherRoom);
+		}
 
-        [HttpGet("[action]/{roomId}")]
-        public ActionResult<LehrerRaum> GetBetreuer(int roomId)
-        {
-            if (!TokenProvider.IsAdmin(User))
-            {
-                return Unauthorized();
-            }
+		[HttpGet("[action]/{roomId}")]
+		[ProducesResponseType(typeof(List<LehrerRaum>), 200)]
+		[ProducesResponseType(401)]
+		public ActionResult<List<LehrerRaum>> GetAuthorities(int roomId)
+		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
 
-            var teacherRoom = _context.LehrerRaum.FirstOrDefault(lr => lr.RaumId == roomId && lr.Betreuer == true);
+			var teacherRooms = _context.LehrerRaum.Where(lr => lr.RaumId == roomId && lr.Betreuer);
 
-            if (teacherRoom == null)
-            {
-                return NotFound();
-            }
+			return Ok(teacherRooms);
+		}
 
-            return Ok(teacherRoom);
-        }
+		[HttpPost("[action]/{roomId}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		[ProducesResponseType(401)]
+		public IActionResult UpdateAuthorities(int roomId, List<LehrerRaum> authorities)
+		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
 
-        // GET: api/LehrerRaum
-        [HttpGet]
-        [ProducesResponseType(typeof(LehrerRaum), 200)]
-        [ProducesResponseType(401)]
-        public async Task<ActionResult<IEnumerable<LehrerRaum>>> GetLehrerRaum()
-        {
-            if (!TokenProvider.IsAdmin(User))
-            {
-                return Unauthorized();
-            }
+			if (authorities == null)
+			{
+				return BadRequest();
+			}
 
-            return Ok(await _context.LehrerRaum.ToListAsync().ConfigureAwait(false));
-        }
+			if (authorities.Any(a => a.RaumId != roomId))
+			{
+				return BadRequest();
+			}
 
-        // GET: api/LehrerRaum/5
-        [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<LehrerRaum>> GetLehrerRaum(long id)
-        {
-            if (!TokenProvider.IsAdmin(User))
-            {
-                return Unauthorized();
-            }
+			var dbAuthorities = _context.LehrerRaum.Where(lr => lr.RaumId == roomId);
 
-            var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
+			foreach (var authority in authorities)
+			{
+				var dbAuthority = dbAuthorities.FirstOrDefault(lr =>
+					lr.LehrerId == authority.LehrerId && lr.RaumId == authority.RaumId);
 
-            if (lehrerRaum == null)
-            {
-                return NotFound();
-            }
+				if (dbAuthority != null)
+				{
+					if (!dbAuthority.Betreuer)
+					{
+						dbAuthority.Betreuer = true;
+						_context.LehrerRaum.Update(dbAuthority);
+					}
+				}
+				else
+				{
+					dbAuthority = new LehrerRaum
+					{
+						RaumId = authority.RaumId,
+						Betreuer = true,
+						LehrerId = authority.LehrerId
+					};
 
-            return Ok(lehrerRaum);
-        }
+					_context.LehrerRaum.Add(dbAuthority);
+				}
+			}
 
-        // DELETE: api/LehrerRaum/5
-        [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult> DeleteLehrerRaum(long id)
-        {
-            if (!TokenProvider.IsAdmin(User))
-            {
-                return Unauthorized();
-            }
+			foreach (var dbAuthority in dbAuthorities)
+			{
+				if (!authorities.Any(a => a.LehrerId == dbAuthority.LehrerId && a.RaumId == dbAuthority.RaumId))
+				{
+					_context.LehrerRaum.Remove(dbAuthority);
+				}
+			}
 
-            var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
+			return Ok();
+		}
 
-            if (lehrerRaum == null)
-            {
-                return NotFound();
-            }
+		// GET: api/LehrerRaum
+		[HttpGet]
+		[ProducesResponseType(typeof(LehrerRaum), 200)]
+		[ProducesResponseType(401)]
+		public async Task<ActionResult<IEnumerable<LehrerRaum>>> GetLehrerRaum()
+		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
 
-            _context.LehrerRaum.Remove(lehrerRaum);
-            await _context.SaveChangesAsync();
+			return Ok(await _context.LehrerRaum.ToListAsync().ConfigureAwait(false));
+		}
 
-            return Ok();
-        }
+		// GET: api/LehrerRaum/5
+		[HttpGet("{id}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
+		[ProducesResponseType(404)]
+		public async Task<ActionResult<LehrerRaum>> GetLehrerRaum(long id)
+		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
 
-        private bool LehrerRaumExists(long id)
-        {
-            return _context.LehrerRaum.Any(e => e.Id == id);
-        }
-    }
+			var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
+
+			if (lehrerRaum == null)
+			{
+				return NotFound();
+			}
+
+			return Ok(lehrerRaum);
+		}
+
+		// DELETE: api/LehrerRaum/5
+		[HttpDelete("{id}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(401)]
+		[ProducesResponseType(404)]
+		public async Task<ActionResult> DeleteLehrerRaum(long id)
+		{
+			if (!TokenProvider.IsAdmin(User))
+			{
+				return Unauthorized();
+			}
+
+			var lehrerRaum = await _context.LehrerRaum.FindAsync(id);
+
+			if (lehrerRaum == null)
+			{
+				return NotFound();
+			}
+
+			_context.LehrerRaum.Remove(lehrerRaum);
+			await _context.SaveChangesAsync();
+
+			return Ok();
+		}
+
+		private bool LehrerRaumExists(long id)
+		{
+			return _context.LehrerRaum.Any(e => e.Id == id);
+		}
+	}
 }
